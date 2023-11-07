@@ -74,7 +74,7 @@ class OpenAITestsDecoder: XCTestCase {
         let expectedValue = ImagesResult(created: 1589478378, data: [
             .init(url: "https://foo.bar"),
             .init(url: "https://bar.foo")
-        ])
+        ], url: nil, b64JSON: nil, revisedPrompt: nil)
         try decode(data, expectedValue)
     }
     
