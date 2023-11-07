@@ -126,16 +126,14 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
         
         public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
             switch self {
             case .none:
-                var container = encoder.singleValueContainer()
                 try container.encode(CodingKeys.none.rawValue)
             case .auto:
-                var container = encoder.singleValueContainer()
                 try container.encode(CodingKeys.auto.rawValue)
             case .tool(let tool):
-                var container = encoder.container(keyedBy: CodingKeys.self)
-                try container.encode(tool, forKey: .tool)
+                try container.encode(tool)
             }
         }
     }
