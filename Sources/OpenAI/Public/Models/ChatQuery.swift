@@ -53,38 +53,13 @@ public struct Chat: Codable, Equatable {
     }
 }
 
-public struct ChatToolDefinition: Codable, Equatable {
-    public let type: String
-    public let function: Function
-    
-    public struct Function: Codable, Equatable {
-        /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-        public let name: String
-        /// The description of what the function does.
-        public let description: String?
-        /// The parameters the functions accepts, described as a JSON Schema object.
-        public let parameters: JSONSchema?
-      
-        public init(name: String, description: String? = nil, parameters: JSONSchema? = nil) {
-          self.name = name
-          self.description = description
-          self.parameters = parameters
-        }
-    }
-    
-    public init(type: String, function: Function) {
-        self.type = type
-        self.function = function
-    }
-}
-
 public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
     /// The messages to generate chat completions for
     public let messages: [Chat]
     /// A list of tools the model may call. Currently, only functions are supported as a tool.
-    public let tools: [ChatToolDefinition]?
+    public let tools: [Tool]?
     /// Controls which (if any) function is called by the model.
     public let toolChoice: ToolChoice?
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
@@ -117,10 +92,32 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case json = "json_object"
     }
     
+    public struct Tool: Codable, Equatable {
+        public let type: String
+        public let function: Function
+        
+        public struct Function: Codable, Equatable {
+            public let name: String
+            public let description: String?
+            public let parameters: JSONSchema?
+          
+            public init(name: String, description: String? = nil, parameters: JSONSchema? = nil) {
+              self.name = name
+              self.description = description
+              self.parameters = parameters
+            }
+        }
+        
+        public init(type: String, function: Function) {
+            self.type = type
+            self.function = function
+        }
+    }
+    
     public enum ToolChoice: Codable, Equatable {
         case none
         case auto
-        case tool(ChatToolDefinition)
+        case tool(Tool)
         
         enum CodingKeys: String, CodingKey {
             case none
@@ -162,7 +159,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case user
     }
     
-    public init(model: Model, messages: [Chat], tools: [ChatToolDefinition]? = nil, toolChoice: ToolChoice? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, responseFormat: ResponseFormat? = nil, seed: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+    public init(model: Model, messages: [Chat], tools: [Tool]? = nil, toolChoice: ToolChoice? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, responseFormat: ResponseFormat? = nil, seed: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.tools = tools
