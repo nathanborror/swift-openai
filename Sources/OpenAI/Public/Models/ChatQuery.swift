@@ -72,7 +72,7 @@ public struct ChatToolDefinition: Codable, Equatable {
         }
     }
     
-    init(type: String, function: Function) {
+    public init(type: String, function: Function) {
         self.type = type
         self.function = function
     }
