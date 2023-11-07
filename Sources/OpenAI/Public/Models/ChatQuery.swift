@@ -71,6 +71,11 @@ public struct ChatToolDefinition: Codable, Equatable {
           self.parameters = parameters
         }
     }
+    
+    init(type: String, function: Function) {
+        self.type = type
+        self.function = function
+    }
 }
 
 public struct ChatQuery: Equatable, Codable, Streamable {
