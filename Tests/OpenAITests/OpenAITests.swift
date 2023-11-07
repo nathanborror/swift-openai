@@ -46,8 +46,8 @@ class OpenAITests: XCTestCase {
     func testImages() async throws {
         let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dalle2, n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar"),
-        ], url: nil, b64JSON: nil, revisedPrompt: nil)
+            .init(url: "http://foo.bar", b64JSON: nil, revisedPrompt: nil),
+        ])
         try self.stub(result: imagesResult)
         let result = try await openAI.images(query: query)
         XCTAssertEqual(result, imagesResult)
