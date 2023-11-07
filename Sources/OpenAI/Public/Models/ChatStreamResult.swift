@@ -37,7 +37,7 @@ public struct ChatStreamResult: Codable, Equatable {
         
         public struct Delta: Codable, Equatable {
             public let content: String?
-            public let role: Chat.Role
+            public let role: Chat.Role?
             public let toolCalls: [Chat.ToolCall]?
 
             enum CodingKeys: String, CodingKey {
