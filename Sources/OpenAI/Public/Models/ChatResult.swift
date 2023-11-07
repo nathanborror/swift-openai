@@ -8,13 +8,27 @@
 import Foundation
 
 public struct ChatResult: Codable, Equatable {
+    public let id: String
+    public let object: String
+    public let created: TimeInterval
+    public let model: Model
+    public let choices: [Choice]
+    public let usage: Usage?
+    public let systemFingerprint: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case object
+        case created
+        case model
+        case choices
+        case usage
+        case systemFingerprint = "system_fingerprint"
+    }
     
     public struct Choice: Codable, Equatable {
-      
         public let index: Int
-        /// Exists only if it is a complete message.
         public let message: Chat
-        /// Exists only if it is a complete message.
         public let finishReason: String?
         
         enum CodingKeys: String, CodingKey {
@@ -36,28 +50,13 @@ public struct ChatResult: Codable, Equatable {
         }
     }
     
-    public let id: String
-    public let object: String
-    public let created: TimeInterval
-    public let model: Model
-    public let choices: [Choice]
-    public let usage: Usage?
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case object
-        case created
-        case model
-        case choices
-        case usage
-    }
-    
-    init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice], usage: Usage) {
+    init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice], usage: Usage, systemFingerprint: String) {
         self.id = id
         self.object = object
         self.created = created
         self.model = model
         self.choices = choices
         self.usage = usage
+        self.systemFingerprint = systemFingerprint
     }
 }

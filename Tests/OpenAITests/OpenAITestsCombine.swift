@@ -26,7 +26,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testCompletions() throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+        let query = CompletionsQuery(model: .gpt3_5TurboInstruct, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
             .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
         ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
@@ -37,18 +37,26 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testChats() throws {
-       let query = ChatQuery(model: .gpt4, messages: [
+        let query = ChatQuery(model: .gpt4, messages: [
            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
            .init(role: .user, content: "Who wrote Harry Potter?")
-       ])
-       let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
-        ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
-       try self.stub(result: chatResult)
-       let result = try awaitPublisher(openAI.chats(query: query))
-       XCTAssertEqual(result, chatResult)
+        ])
+        let chatResult = ChatResult(
+            id: "id-12312",
+            object: "foo",
+            created: 100,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
+                .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
+                .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2"),
+            ],
+            usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300),
+            systemFingerprint: ""
+        )
+        try self.stub(result: chatResult)
+        let result = try awaitPublisher(openAI.chats(query: query))
+        XCTAssertEqual(result, chatResult)
     }
     
     func testEdits() throws {
@@ -93,7 +101,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testModerations() throws {
         let query = ModerationsQuery(input: "Hello, world!")
-        let moderationsResult = ModerationsResult(id: "foo", model: .moderation, results: [
+        let moderationsResult = ModerationsResult(id: "foo", model: .textModerationStable, results: [
             .init(categories: .init(hate: false, hateThreatening: false, selfHarm: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
                   categoryScores: .init(hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
                   flagged: false)
