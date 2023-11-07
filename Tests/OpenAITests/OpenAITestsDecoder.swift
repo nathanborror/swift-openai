@@ -33,7 +33,7 @@ class OpenAITestsDecoder: XCTestCase {
           "id": "foo",
           "object": "text_completion",
           "created": 1589478378,
-          "model": "text-davinci-003",
+          "model": "gpt-3.5-turbo-instruct",
           "choices": [
             {
               "text": "Hello, world!",
@@ -50,7 +50,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
+        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .gpt3_5TurboInstruct, choices: [
             .init(text: "Hello, world!", index: 0, finishReason: "length")
         ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
         try decode(data, expectedValue)
@@ -102,8 +102,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finishReason: "stop")
-        ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
+            .init(index: 0, message: .init(role: .assistant, content:"Hello, world!"), finishReason: "stop"),
+        ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21), systemFingerprint: "")
         try decode(data, expectedValue)
     }
   
@@ -113,19 +113,21 @@ class OpenAITestsDecoder: XCTestCase {
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
-            functions: [
-                ChatFunctionDeclaration(
-                    name: "get_current_weather",
-                    description: "Get the current weather in a given location",
-                    parameters:
-                      JSONSchema(
-                        type: .object,
-                        properties: [
-                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                          "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
-                        ],
-                        required: ["location"]
-                      )
+            tools: [
+                .init(
+                    type: "function",
+                    function: .init(
+                        name: "get_current_weather",
+                        description: "Get the current weather in a given location",
+                        parameters: JSONSchema(
+                            type: .object,
+                            properties: [
+                              "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                              "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+                            ],
+                            required: ["location"]
+                        )
+                    )
                 )
             ]
         )
@@ -197,12 +199,24 @@ class OpenAITestsDecoder: XCTestCase {
             created: 1677652288,
             model: .gpt3_5Turbo,
             choices: [
-                .init(index: 0, message:
-                        Chat(role: .assistant,
-                             functionCall: ChatFunctionCall(name: "get_current_weather", arguments: nil)),
-                      finishReason: "function_call")
+                .init(
+                    index: 0,
+                    message: .init(
+                        role: .assistant,
+                        toolCalls: [
+                            .init(
+                                id: "",
+                                type: "function",
+                                function: .init(name: "get_current_weather", arguments: "")
+                            )
+                        ]
+                    ),
+                    finishReason: "tool_calls"
+                ),
             ],
-            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100))
+            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100),
+            systemFingerprint: ""
+        )
         try decode(data, expectedValue)
     }
 
@@ -295,13 +309,13 @@ class OpenAITestsDecoder: XCTestCase {
     func testModelType() async throws {
         let data = """
         {
-          "id": "text-davinci-003",
+          "id": "gpt-3.5-turbo-instruct",
           "object": "model",
           "owned_by": "openai"
         }
         """
         
-        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
+        let expectedValue = ModelResult(id: .gpt3_5TurboInstruct, object: "model", ownedBy: "openai")
         try decode(data, expectedValue)
     }
     
@@ -336,7 +350,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .moderation, results: [
+        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .textModerationStable, results: [
             .init(categories: .init(hate: false, hateThreatening: true, selfHarm: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
                   categoryScores: .init(hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
                   flagged: true)
