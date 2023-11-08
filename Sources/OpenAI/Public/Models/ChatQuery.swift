@@ -29,7 +29,7 @@ public struct Chat: Codable, Equatable {
         public let id: String?
         public let type: String?
         public let function: Function
-        public let index: Int
+        public let index: Int?
         
         public struct Function: Codable, Equatable {
             public let name: String?
