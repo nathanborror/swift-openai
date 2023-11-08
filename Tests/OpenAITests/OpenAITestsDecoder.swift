@@ -207,7 +207,8 @@ class OpenAITestsDecoder: XCTestCase {
                             .init(
                                 id: "",
                                 type: "function",
-                                function: .init(name: "get_current_weather", arguments: "")
+                                function: .init(name: "get_current_weather", arguments: ""),
+                                index: 0
                             )
                         ]
                     ),
