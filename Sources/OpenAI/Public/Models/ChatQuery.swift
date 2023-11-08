@@ -26,13 +26,13 @@ public struct Chat: Codable, Equatable {
     }
     
     public struct ToolCall: Codable, Equatable {
-        public let id: String
-        public let type: String
+        public let id: String?
+        public let type: String?
         public let function: Function
         
         public struct Function: Codable, Equatable {
-            public let name: String
-            public let arguments: String
+            public let name: String?
+            public let arguments: String?
         }
     }
     
