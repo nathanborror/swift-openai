@@ -17,7 +17,7 @@ public struct ImagesQuery: Codable {
     /// The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image. This param is only supported for dall-e-3.
     public let quality: String?
     /// The format in which the generated images are returned. Must be one of url or b64_json.
-    public let responseFormat: String?
+    public let responseFormat: ResponseFormat?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024 for dall-e-2. Must be one of 1024x1024, 1792x1024, or 1024x1792 for dall-e-3 models.
     public let size: String?
     /// The style of the generated images. Must be one of vivid or natural. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for dall-e-3.
@@ -25,6 +25,10 @@ public struct ImagesQuery: Codable {
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     public let user: String?
 
+    public enum ResponseFormat: String, Codable {
+        case url, b64_json
+    }
+    
     enum CodingKeys: String, CodingKey {
         case prompt
         case model
@@ -36,7 +40,7 @@ public struct ImagesQuery: Codable {
         case user
     }
     
-    public init(prompt: String, model: Model, n: Int? = nil, quality: String? = nil, responseFormat: String? = nil, size: String? = nil, style: String? = nil, user: String? = nil) {
+    public init(prompt: String, model: Model, n: Int? = nil, quality: String? = nil, responseFormat: ResponseFormat? = nil, size: String? = nil, style: String? = nil, user: String? = nil) {
         self.prompt = prompt
         self.model = model
         self.n = n
