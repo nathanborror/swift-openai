@@ -78,6 +78,53 @@ class OpenAITestsDecoder: XCTestCase {
         try decode(data, expectedValue)
     }
     
+    func testChatQuery() async throws {
+        let data = """
+        {
+          "id": "chatcmpl-1234",
+          "object": "chat.completion",
+          "created": 1677652288,
+          "model": "gpt-3.5-turbo",
+          "system_fingerprint": "fp_44709d6fcb",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "user",
+                "content": "Hello!",
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 82,
+            "completion_tokens": 18,
+            "total_tokens": 100
+          }
+        }
+        """
+        
+        let expectedValue = ChatResult(
+            id: "chatcmpl-1234",
+            object: "chat.completion",
+            created: 1677652288,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(
+                    index: 0,
+                    message: .init(
+                        role: .user,
+                        content: .text("Hello!")
+                    ),
+                    finishReason: "stop"
+                ),
+            ],
+            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100),
+            systemFingerprint: "fp_44709d6fcb"
+        )
+        try decode(data, expectedValue)
+    }
+    
     func testChatCompletion() async throws {
         let data = """
         {
@@ -105,6 +152,67 @@ class OpenAITestsDecoder: XCTestCase {
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
             .init(index: 0, message: .init(role: .assistant, content: .text("Hello, world!")), finishReason: "stop"),
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21), systemFingerprint: "fp_44709d6fcb")
+        try decode(data, expectedValue)
+    }
+    
+    func testChatQueryWithImageInput() async throws {
+        let data = """
+        {
+          "id": "chatcmpl-1234",
+          "object": "chat.completion",
+          "created": 1677652288,
+          "model": "gpt-3.5-turbo",
+          "system_fingerprint": "fp_44709d6fcb",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "What’s in this image?"
+                  },
+                  {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                    }
+                  }
+                ],
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 82,
+            "completion_tokens": 18,
+            "total_tokens": 100
+          }
+        }
+        """
+        
+        let expectedValue = ChatResult(
+            id: "chatcmpl-1234",
+            object: "chat.completion",
+            created: 1677652288,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(
+                    index: 0,
+                    message: .init(
+                        role: .user,
+                        content: .items([
+                            .init(type: .text, text: "What’s in this image?"),
+                            .init(type: .image, image: .init(url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"))
+                        ])
+                    ),
+                    finishReason: "stop"
+                ),
+            ],
+            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100),
+            systemFingerprint: "fp_44709d6fcb"
+        )
         try decode(data, expectedValue)
     }
   

@@ -28,11 +28,11 @@ public struct Chat: Codable, Equatable {
     
     public enum Content: Codable, Equatable {
         case text(String)
-        case objects([ContentObject])
+        case items([ContentItem])
         
         public init(from decoder: Decoder) throws {
-            if let objects = try? decoder.singleValueContainer().decode([ContentObject].self) {
-                self = .objects(objects)
+            if let items = try? decoder.singleValueContainer().decode([ContentItem].self) {
+                self = .items(items)
             } else if let text = try? decoder.singleValueContainer().decode(String.self) {
                 self = .text(text)
             } else {
@@ -45,26 +45,37 @@ public struct Chat: Codable, Equatable {
             case .text(let content):
                 var container = encoder.singleValueContainer()
                 try container.encode(content)
-            case .objects(let objects):
+            case .items(let items):
                 var container = encoder.unkeyedContainer()
-                try container.encode(contentsOf: objects)
+                try container.encode(contentsOf: items)
             }
         }
     }
     
-    public struct ContentObject: Codable, Equatable {
-        public let type: String
+    public struct ContentItem: Codable, Equatable {
+        public let type: ContentType
         public let text: String?
-        public let imageURL: ImageURL
+        public let image: ImageURL?
+        
+        public enum ContentType: String, Codable {
+            case text
+            case image = "image_url"
+        }
         
         enum CodingKeys: String, CodingKey, Equatable {
             case type
             case text
-            case imageURL = "image_url"
+            case image = "image_url"
         }
         
         public struct ImageURL: Codable, Equatable {
             public let url: String
+        }
+        
+        init(type: ContentType, text: String? = nil, image: ImageURL? = nil) {
+            self.type = type
+            self.text = text
+            self.image = image
         }
     }
     
