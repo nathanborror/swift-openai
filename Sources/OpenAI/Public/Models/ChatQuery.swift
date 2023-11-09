@@ -48,6 +48,10 @@ public struct Chat: Codable, Equatable {
             
             public struct ImageURL: Codable, Equatable {
                 public let url: String
+                
+                public init(url: String) {
+                    self.url = url
+                }
             }
             
             public init(type: ContentType, text: String? = nil, image: ImageURL? = nil) {
