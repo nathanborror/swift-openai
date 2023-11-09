@@ -33,7 +33,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case speed
     }
     
-    init(model: Model, input: String, voice: Voice, responseFormat: ResponseFormat?, speed: Int?) {
+    public init(model: Model, input: String, voice: Voice, responseFormat: ResponseFormat?, speed: Int?) {
         self.model = model
         self.input = input
         self.voice = voice
