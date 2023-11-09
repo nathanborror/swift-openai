@@ -85,6 +85,7 @@ class OpenAITestsDecoder: XCTestCase {
           "object": "chat.completion",
           "created": 1677652288,
           "model": "gpt-4",
+          "system_fingerprint": "fp_44709d6fcb",
           "choices": [{
             "index": 0,
             "message": {
@@ -102,8 +103,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: .init(role: .assistant, content:"Hello, world!"), finishReason: "stop"),
-        ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21), systemFingerprint: "")
+            .init(index: 0, message: .init(role: .assistant, content: .text("Hello, world!")), finishReason: "stop"),
+        ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21), systemFingerprint: "fp_44709d6fcb")
         try decode(data, expectedValue)
     }
   
@@ -111,7 +112,7 @@ class OpenAITestsDecoder: XCTestCase {
         let chatQuery = ChatQuery(
             model: .gpt3_5Turbo,
             messages: [
-                Chat(role: .user, content: "What's the weather like in Boston?")
+                Chat(role: .user, content: .text("What's the weather like in Boston?"))
             ],
             tools: [
                 .init(
@@ -137,20 +138,23 @@ class OpenAITestsDecoder: XCTestCase {
           "messages": [
             { "role": "user", "content": "What's the weather like in Boston?" }
           ],
-          "functions": [
+          "tools": [
             {
-              "name": "get_current_weather",
-              "description": "Get the current weather in a given location",
-              "parameters": {
-                "type": "object",
-                "properties": {
-                  "location": {
-                    "type": "string",
-                    "description": "The city and state, e.g. San Francisco, CA"
+              "type": "function",
+              "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather in a given location",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "location": {
+                      "type": "string",
+                      "description": "The city and state, e.g. San Francisco, CA"
+                    },
+                    "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] }
                   },
-                  "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] }
-                },
-                "required": ["location"]
+                  "required": ["location"]
+                }
               }
             }
           ],
@@ -172,17 +176,26 @@ class OpenAITestsDecoder: XCTestCase {
           "object": "chat.completion",
           "created": 1677652288,
           "model": "gpt-3.5-turbo",
+          "system_fingerprint": "fp_44709d6fcb",
           "choices": [
             {
               "index": 0,
               "message": {
                 "role": "assistant",
                 "content": null,
-                "function_call": {
-                  "name": "get_current_weather"
-                }
+                "tool_calls": [
+                  {
+                    "id": "123",
+                    "type": "function",
+                    "function": {
+                      "name": "get_current_weather",
+                      "arguments": ""
+                    },
+                    "index": 0
+                  }
+                ]
               },
-              "finish_reason": "function_call"
+              "finish_reason": "tool_calls"
             }
           ],
           "usage": {
@@ -205,7 +218,7 @@ class OpenAITestsDecoder: XCTestCase {
                         role: .assistant,
                         toolCalls: [
                             .init(
-                                id: "",
+                                id: "123",
                                 type: "function",
                                 function: .init(name: "get_current_weather", arguments: ""),
                                 index: 0
@@ -216,7 +229,7 @@ class OpenAITestsDecoder: XCTestCase {
                 ),
             ],
             usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100),
-            systemFingerprint: ""
+            systemFingerprint: "fp_44709d6fcb"
         )
         try decode(data, expectedValue)
     }
@@ -324,7 +337,7 @@ class OpenAITestsDecoder: XCTestCase {
         let data = """
         {
           "id": "modr-5MWoLO",
-          "model": "text-moderation-001",
+          "model": "text-moderation-stable",
           "results": [
             {
               "categories": {
