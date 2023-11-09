@@ -7,6 +7,7 @@
 
 #if canImport(Combine)
 
+import Foundation
 import Combine
 
 @available(iOS 13.0, *)
@@ -97,6 +98,20 @@ public extension OpenAIProtocol {
             moderations(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
+    }
+    
+    func audioSpeech(query: AudioSpeechQuery) -> AnyPublisher<Result<Data, Error>, Error> {
+        let progress = PassthroughSubject<Result<Data, Error>, Error>()
+        audioSpeech(query: query) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
     }
 
     func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {

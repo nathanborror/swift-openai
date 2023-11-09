@@ -180,6 +180,11 @@ public protocol OpenAIProtocol {
     func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
     
     /**
+     This function converts text to speech and returns a chunked stream of audio data.
+     **/
+    func audioSpeech(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?)
+    
+    /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
 
     - Parameter query: The `AudioTranscriptionQuery` instance, containing the information required for the transcription request.
