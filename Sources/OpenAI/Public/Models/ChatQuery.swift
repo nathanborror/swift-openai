@@ -28,10 +28,37 @@ public struct Chat: Codable, Equatable {
     
     public enum Content: Codable, Equatable {
         case text(String)
-        case items([ContentItem])
+        case items([Item])
+        
+        public struct Item: Codable, Equatable {
+            public let type: ContentType
+            public let text: String?
+            public let image: ImageURL?
+            
+            public enum ContentType: String, Codable {
+                case text
+                case image = "image_url"
+            }
+            
+            enum CodingKeys: String, CodingKey, Equatable {
+                case type
+                case text
+                case image = "image_url"
+            }
+            
+            public struct ImageURL: Codable, Equatable {
+                public let url: String
+            }
+            
+            public init(type: ContentType, text: String? = nil, image: ImageURL? = nil) {
+                self.type = type
+                self.text = text
+                self.image = image
+            }
+        }
         
         public init(from decoder: Decoder) throws {
-            if let items = try? decoder.singleValueContainer().decode([ContentItem].self) {
+            if let items = try? decoder.singleValueContainer().decode([Item].self) {
                 self = .items(items)
             } else if let text = try? decoder.singleValueContainer().decode(String.self) {
                 self = .text(text)
@@ -49,33 +76,6 @@ public struct Chat: Codable, Equatable {
                 var container = encoder.unkeyedContainer()
                 try container.encode(contentsOf: items)
             }
-        }
-    }
-    
-    public struct ContentItem: Codable, Equatable {
-        public let type: ContentType
-        public let text: String?
-        public let image: ImageURL?
-        
-        public enum ContentType: String, Codable {
-            case text
-            case image = "image_url"
-        }
-        
-        enum CodingKeys: String, CodingKey, Equatable {
-            case type
-            case text
-            case image = "image_url"
-        }
-        
-        public struct ImageURL: Codable, Equatable {
-            public let url: String
-        }
-        
-        init(type: ContentType, text: String? = nil, image: ImageURL? = nil) {
-            self.type = type
-            self.text = text
-            self.image = image
         }
     }
     
