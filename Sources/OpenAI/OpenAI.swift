@@ -96,6 +96,10 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: .moderations)), completion: completion)
     }
     
+    public func audioSpeech(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSteamingAudioRequest(request: JSONRequest<Data>(body: query, url: buildURL(path: .audioSpeech)), onResult: onResult, completion: completion)
+    }
+    
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
     }
@@ -163,6 +167,24 @@ extension OpenAI {
             completion?(error)
         }
     }
+    
+    func performSteamingAudioRequest(request: any URLRequestBuildable, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        do {
+            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+            let session = StreamingAudioSession(urlRequest: request)
+            session.onReceiveContent = {_, data in
+                onResult(.success(data))
+            }
+            session.onComplete = { [weak self] object, error in
+                self?.streamingSessions.removeAll(where: { $0 == object })
+                completion?(error)
+            }
+            session.perform()
+            streamingSessions.append(session)
+        } catch {
+            completion?(error)
+        }
+    }
 }
 
 extension OpenAI {
@@ -186,7 +208,7 @@ extension APIPath {
     static let edits = "/v1/edits"
     static let models = "/v1/models"
     static let moderations = "/v1/moderations"
-    
+    static let audioSpeech = "/v1/audio/speech"
     static let audioTranscriptions = "/v1/audio/transcriptions"
     static let audioTranslations = "/v1/audio/translations"
     
