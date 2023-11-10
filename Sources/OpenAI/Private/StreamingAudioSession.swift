@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Nathan Borror on 11/9/23.
-//
-
 import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking

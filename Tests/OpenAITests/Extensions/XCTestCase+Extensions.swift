@@ -1,19 +1,9 @@
-//
-//  XCTestCase+Extensions.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 04/04/2023.
-//
-
 #if canImport(Combine)
 
 import XCTest
 import Combine
 
-//Borrowed from here: https://www.swiftbysundell.com/articles/unit-testing-combine-based-swift-code/
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
-@available(iOS 13.0, *)
+// Borrowed from here: https://www.swiftbysundell.com/articles/unit-testing-combine-based-swift-code/
 extension XCTestCase {
     
     func awaitPublisher<T: Publisher>(

@@ -1,14 +1,6 @@
-//
-//  MultipartFormDataBodyBuilder.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 02/04/2023.
-//
-
 import Foundation
 
 final class MultipartFormDataBodyBuilder {
-        
     let boundary: String
     let entries: [MultipartFormDataEntry]
     

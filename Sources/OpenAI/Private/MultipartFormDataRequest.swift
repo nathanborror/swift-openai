@@ -1,17 +1,9 @@
-//
-//  MultipartFormDataRequest.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 02/04/2023.
-//
-
 import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 
 final class MultipartFormDataRequest<ResultType> {
-    
     let body: MultipartFormDataBodyEncodable
     let url: URL
     let method: String

@@ -1,17 +1,9 @@
-//
-//  JSONRequest.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 12/19/22.
-//
-
 import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 
 final class JSONRequest<ResultType> {
-    
     let body: Codable?
     let url: URL
     let method: String

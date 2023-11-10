@@ -1,16 +1,6 @@
-//
-//  OpenAITestsDecoder.swift
-//  
-//
-//  Created by Aled Samuel on 10/04/2023.
-//
-
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
 class OpenAITestsDecoder: XCTestCase {
     
     override func setUp() {
@@ -50,7 +40,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .gpt3_5TurboInstruct, choices: [
+        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: "gpt-3.5-turbo-instruct", choices: [
             .init(text: "Hello, world!", index: 0, finishReason: "length")
         ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
         try decode(data, expectedValue)
@@ -108,7 +98,7 @@ class OpenAITestsDecoder: XCTestCase {
             id: "chatcmpl-1234",
             object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo,
+            model: "gpt-3.5-turbo",
             choices: [
                 .init(
                     index: 0,
@@ -131,7 +121,7 @@ class OpenAITestsDecoder: XCTestCase {
           "id": "chatcmpl-123",
           "object": "chat.completion",
           "created": 1677652288,
-          "model": "gpt-4",
+          "model": "gpt-3.5-turbo",
           "system_fingerprint": "fp_44709d6fcb",
           "choices": [{
             "index": 0,
@@ -149,7 +139,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
+        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: "gpt-3.5-turbo", choices: [
             .init(index: 0, message: .init(role: .assistant, content: "Hello, world!"), finishReason: "stop"),
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21), systemFingerprint: "fp_44709d6fcb")
         try decode(data, expectedValue)
@@ -157,7 +147,7 @@ class OpenAITestsDecoder: XCTestCase {
     
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
-            model: .gpt3_5Turbo,
+            model: "gpt-3.5-turbo",
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
@@ -252,12 +242,11 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
         let expectedValue = ChatResult(
             id: "chatcmpl-1234",
             object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo,
+            model: "gpt-3.5-turbo",
             choices: [
                 .init(
                     index: 0,
@@ -299,7 +288,6 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
         let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
             .init(text: "What day of the week is it?", index: 0)
         ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
@@ -328,10 +316,9 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
         let expectedValue = EmbeddingsResult(data: [
             .init(object: "embedding", embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0)
-        ], model: .textEmbeddingAda, usage: .init(promptTokens: 8, totalTokens: 8))
+        ], model: "text-embedding-ada-002", usage: .init(promptTokens: 8, completionTokens: nil, totalTokens: 8))
         try decode(data, expectedValue)
     }
     
@@ -358,11 +345,10 @@ class OpenAITestsDecoder: XCTestCase {
           "object": "list"
         }
         """
-        
         let expectedValue = ModelsResult(data: [
-            .init(id: .gpt3_5Turbo, object: "model", ownedBy: "organization-owner"),
-            .init(id: .gpt4, object: "model", ownedBy: "organization-owner"),
-            .init(id: .textDavinci_001, object: "model", ownedBy: "openai")
+            .init(id: "gpt-3.5-turbo", object: "model", ownedBy: "organization-owner"),
+            .init(id: "gpt-4", object: "model", ownedBy: "organization-owner"),
+            .init(id: "text-davinci-001", object: "model", ownedBy: "openai")
         ], object: "list")
         try decode(data, expectedValue)
     }
@@ -375,8 +361,7 @@ class OpenAITestsDecoder: XCTestCase {
           "owned_by": "openai"
         }
         """
-        
-        let expectedValue = ModelResult(id: .gpt3_5TurboInstruct, object: "model", ownedBy: "openai")
+        let expectedValue = ModelResult(id: "gpt-3.5-turbo-instruct", object: "model", ownedBy: "openai")
         try decode(data, expectedValue)
     }
     
@@ -411,7 +396,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .textModerationStable, results: [
+        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: "text-moderation-stable", results: [
             .init(categories: .init(hate: false, hateThreatening: true, selfHarm: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
                   categoryScores: .init(hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
                   flagged: true)

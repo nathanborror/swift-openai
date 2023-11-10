@@ -1,22 +1,15 @@
-//
-//  OpenAITestsCombine.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 04/04/2023.
-//
-
 #if canImport(Combine)
 
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
 final class OpenAITestsCombine: XCTestCase {
     
     var openAI: OpenAIProtocol!
     var urlSession: URLSessionMock!
+    
+    let gpt3_5Turbo = "gpt-3.5-turbo"
+    let gpt3_5Turbo_Instruct = "gpt-3.5-turbo-instruct"
     
     override func setUp() {
         super.setUp()
@@ -26,8 +19,8 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testCompletions() throws {
-        let query = CompletionsQuery(model: .gpt3_5TurboInstruct, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
+        let query = CompletionsQuery(model: gpt3_5Turbo_Instruct, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: gpt3_5Turbo_Instruct, choices: [
             .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
         ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
         try self.stub(result: expectedResult)
@@ -37,7 +30,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testChats() throws {
-        let query = ChatQuery(model: .gpt4, messages: [
+        let query = ChatQuery(model: gpt3_5Turbo, messages: [
             .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
             .init(role: .user, content: "Who wrote Harry Potter?")
         ])
@@ -45,7 +38,7 @@ final class OpenAITestsCombine: XCTestCase {
             id: "id-12312",
             object: "foo",
             created: 100,
-            model: .gpt3_5Turbo,
+            model: gpt3_5Turbo,
             choices: [
                 .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
                 .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
@@ -60,7 +53,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testEdits() throws {
-        let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
+        let query = EditsQuery(model: gpt3_5Turbo, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
         let editsResult = EditsResult(object: "edit", created: 1589478378, choices: [
             .init(text: "What day of the week is it?", index: 0)
         ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
@@ -70,12 +63,12 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testEmbeddings() throws {
-        let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
+        let query = EmbeddingsQuery(model: "text-embedding-ada-002", input: "The food was delicious and the waiter...")
         let embeddingsResult = EmbeddingsResult(data: [
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], model: .textSearchBabbageDoc, usage: .init(promptTokens: 10, totalTokens: 10))
+        ], model: "text-embedding-ada-002", usage: .init(promptTokens: 10, completionTokens: nil, totalTokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try awaitPublisher(openAI.embeddings(query: query))
@@ -83,8 +76,8 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testRetrieveModel() throws {
-        let query = ModelQuery(model: .gpt4)
-        let modelResult = ModelResult(id: .gpt4, object: "model", ownedBy: "organization-owner")
+        let query = ModelQuery(model: gpt3_5Turbo)
+        let modelResult = ModelResult(id: gpt3_5Turbo, object: "model", ownedBy: "organization-owner")
         try self.stub(result: modelResult)
         
         let result = try awaitPublisher(openAI.model(query: query))
@@ -101,7 +94,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testModerations() throws {
         let query = ModerationsQuery(input: "Hello, world!")
-        let moderationsResult = ModerationsResult(id: "foo", model: .textModerationStable, results: [
+        let moderationsResult = ModerationsResult(id: "foo", model: "text-moderation-stable", results: [
             .init(categories: .init(hate: false, hateThreatening: false, selfHarm: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
                   categoryScores: .init(hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
                   flagged: false)
@@ -114,7 +107,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranscriptions() throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: "whisper_1")
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
@@ -124,7 +117,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranslations() throws {
         let data = Data()
-        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: "whisper_1")
         let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
@@ -133,9 +126,6 @@ final class OpenAITestsCombine: XCTestCase {
     }
 }
 
-@available(tvOS 13.0, *)
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
 extension OpenAITestsCombine {
     
     func stub(error: Error) {

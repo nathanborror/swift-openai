@@ -1,20 +1,7 @@
-//
-//  OpenAIProtocol+Async.swift
-//
-//
-//  Created by Maxime Maheo on 10/02/2023.
-//
-
 import Foundation
 
-@available(iOS 13.0, *)
-@available(macOS 10.15, *)
-@available(tvOS 13.0, *)
-@available(watchOS 6.0, *)
 public extension OpenAIProtocol {
-    func completions(
-        query: CompletionsQuery
-    ) async throws -> CompletionsResult {
+    func completions(query: CompletionsQuery) async throws -> CompletionsResult {
         try await withCheckedThrowingContinuation { continuation in
             completions(query: query) { result in
                 switch result {
@@ -27,9 +14,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func completionsStream(
-        query: CompletionsQuery
-    ) -> AsyncThrowingStream<CompletionsResult, Error> {
+    func completionsStream(query: CompletionsQuery) -> AsyncThrowingStream<CompletionsResult, Error> {
         return AsyncThrowingStream { continuation in
             return completionsStream(query: query) { result in
                 continuation.yield(with: result)
@@ -39,9 +24,7 @@ public extension OpenAIProtocol {
         }
     }
 
-    func images(
-        query: ImagesQuery
-    ) async throws -> ImagesResult {
+    func images(query: ImagesQuery) async throws -> ImagesResult {
         try await withCheckedThrowingContinuation { continuation in
             images(query: query) { result in
                 switch result {
@@ -54,9 +37,7 @@ public extension OpenAIProtocol {
         }
     }
 
-    func embeddings(
-        query: EmbeddingsQuery
-    ) async throws -> EmbeddingsResult {
+    func embeddings(query: EmbeddingsQuery) async throws -> EmbeddingsResult {
         try await withCheckedThrowingContinuation { continuation in
             embeddings(query: query) { result in
                 switch result {
@@ -69,9 +50,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func chats(
-        query: ChatQuery
-    ) async throws -> ChatResult {
+    func chats(query: ChatQuery) async throws -> ChatResult {
         try await withCheckedThrowingContinuation { continuation in
             chats(query: query) { result in
                 switch result {
@@ -84,9 +63,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func chatsStream(
-        query: ChatQuery
-    ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+    func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
         return AsyncThrowingStream { continuation in
             return chatsStream(query: query)  { result in
                 continuation.yield(with: result)
@@ -96,9 +73,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func edits(
-        query: EditsQuery
-    ) async throws -> EditsResult {
+    func edits(query: EditsQuery) async throws -> EditsResult {
         try await withCheckedThrowingContinuation { continuation in
             edits(query: query) { result in
                 switch result {
@@ -111,9 +86,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func model(
-        query: ModelQuery
-    ) async throws -> ModelResult {
+    func model(query: ModelQuery) async throws -> ModelResult {
         try await withCheckedThrowingContinuation { continuation in
             model(query: query) { result in
                 switch result {
@@ -139,9 +112,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func moderations(
-        query: ModerationsQuery
-    ) async throws -> ModerationsResult {
+    func moderations(query: ModerationsQuery) async throws -> ModerationsResult {
         try await withCheckedThrowingContinuation { continuation in
             moderations(query: query) { result in
                 switch result {
@@ -154,9 +125,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func audioSpeech(
-        query: AudioSpeechQuery
-    ) -> AsyncThrowingStream<Data, Error> {
+    func audioSpeech(query: AudioSpeechQuery) -> AsyncThrowingStream<Data, Error> {
         return AsyncThrowingStream { continuation in
             return audioSpeech(query: query) { result in
                 continuation.yield(with: result)
@@ -166,9 +135,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func audioTranscriptions(
-        query: AudioTranscriptionQuery
-    ) async throws -> AudioTranscriptionResult {
+    func audioTranscriptions(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionResult {
         try await withCheckedThrowingContinuation { continuation in
             audioTranscriptions(query: query) { result in
                 switch result {
@@ -181,9 +148,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func audioTranslations(
-        query: AudioTranslationQuery
-    ) async throws -> AudioTranslationResult {
+    func audioTranslations(query: AudioTranslationQuery) async throws -> AudioTranslationResult {
         try await withCheckedThrowingContinuation { continuation in
             audioTranslations(query: query) { result in
                 switch result {

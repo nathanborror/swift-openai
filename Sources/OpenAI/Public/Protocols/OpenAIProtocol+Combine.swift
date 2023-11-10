@@ -1,19 +1,7 @@
-//
-//  OpenAIProtocol+Combine.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 03/04/2023.
-//
-
 #if canImport(Combine)
-
 import Foundation
 import Combine
 
-@available(iOS 13.0, *)
-@available(tvOS 13.0, *)
-@available(macOS 10.15, *)
-@available(watchOS 6.0, *)
 public extension OpenAIProtocol {
 
     func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error> {
@@ -128,5 +116,4 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
 }
-
 #endif

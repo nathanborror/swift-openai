@@ -1,10 +1,3 @@
-//
-//  StreamingSession.swift
-//  
-//
-//  Created by Sergii Kryvoblotskyi on 18/04/2023.
-//
-
 import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
