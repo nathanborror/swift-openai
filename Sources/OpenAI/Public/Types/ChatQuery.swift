@@ -88,7 +88,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     
     public struct Tool: Codable, Equatable {
         public let type: String
-        public let function: Function
+        public let function: Function?
         
         public struct Function: Codable, Equatable {
             public let name: String
