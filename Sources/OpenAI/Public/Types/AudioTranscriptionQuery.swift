@@ -2,7 +2,6 @@ import Foundation
 
 public struct AudioTranscriptionQuery: Codable, Equatable {
     public let file: Data
-    public let fileName: String
     public let model: String
     public let prompt: String?
     public let temperature: Double?
@@ -15,7 +14,6 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case file
-        case fileName
         case model
         case prompt
         case temperature
@@ -23,9 +21,8 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
         case responseFormat = "response_format"
     }
     
-    public init(file: Data, fileName: String, model: String, prompt: String? = nil, temperature: Double? = nil, language: String? = nil, responseFormat: ResponseFormat? = nil) {
+    public init(file: Data, model: String, prompt: String? = nil, temperature: Double? = nil, language: String? = nil, responseFormat: ResponseFormat? = nil) {
         self.file = file
-        self.fileName = fileName
         self.model = model
         self.prompt = prompt
         self.temperature = temperature
@@ -38,7 +35,7 @@ extension AudioTranscriptionQuery: MultipartFormDataBodyEncodable {
     
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "file", fileName: fileName, fileData: file, contentType: "audio/mpeg"),
+            .file(paramName: "file", fileData: file, contentType: "audio/mpeg"),
             .string(paramName: "model", value: model),
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "temperature", value: temperature),

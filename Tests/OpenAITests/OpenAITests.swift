@@ -238,7 +238,7 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranscriptions() async throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: "whisper-1")
+        let query = AudioTranscriptionQuery(file: data, model: "whisper-1")
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
@@ -248,7 +248,7 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranscriptionsError() async throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: "whisper-1")
+        let query = AudioTranscriptionQuery(file: data, model: "whisper-1")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         

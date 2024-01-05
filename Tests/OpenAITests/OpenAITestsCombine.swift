@@ -107,7 +107,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranscriptions() throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: "whisper_1")
+        let query = AudioTranscriptionQuery(file: data, model: "whisper_1")
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
