@@ -304,7 +304,7 @@ class OpenAITests: XCTestCase {
     
     func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: "whisper-1")
+        let completionQuery = AudioTranslationQuery(file: Data(), fileName: "audio.m4a", model: "whisper-1")
         let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         

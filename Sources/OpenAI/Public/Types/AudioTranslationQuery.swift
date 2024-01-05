@@ -2,7 +2,6 @@ import Foundation
 
 public struct AudioTranslationQuery: Codable, Equatable {
     public let file: Data
-    public let fileName: String
     public let model: String
     public let prompt: String?
     public let temperature: Double?
@@ -14,16 +13,14 @@ public struct AudioTranslationQuery: Codable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case file
-        case fileName
         case model
         case prompt
         case temperature
         case responseFormat = "response_format"
     }
     
-    public init(file: Data, fileName: String, model: String, prompt: String? = nil, temperature: Double? = nil, responseFormat: ResponseFormat? = nil) {
+    public init(file: Data, model: String, prompt: String? = nil, temperature: Double? = nil, responseFormat: ResponseFormat? = nil) {
         self.file = file
-        self.fileName = fileName
         self.model = model
         self.prompt = prompt
         self.temperature = temperature
