@@ -5,7 +5,7 @@ import XCTest
 
 final class OpenAITestsCombine: XCTestCase {
     
-    var openAI: OpenAIProtocol!
+    var client: OpenAIClient!
     var urlSession: URLSessionMock!
     
     let gpt3_5Turbo = "gpt-3.5-turbo"
@@ -14,8 +14,8 @@ final class OpenAITestsCombine: XCTestCase {
     override func setUp() {
         super.setUp()
         self.urlSession = URLSessionMock()
-        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let configuration = OpenAIClient.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        self.client = OpenAIClient(configuration: configuration, session: self.urlSession)
     }
     
     func testCompletions() throws {
@@ -25,7 +25,7 @@ final class OpenAITestsCombine: XCTestCase {
         ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
         try self.stub(result: expectedResult)
         
-        let result = try awaitPublisher(self.openAI.completions(query: query))
+        let result = try awaitPublisher(self.client.completions(query: query))
         XCTAssertEqual(result, expectedResult)
     }
     
@@ -48,7 +48,7 @@ final class OpenAITestsCombine: XCTestCase {
             systemFingerprint: ""
         )
         try self.stub(result: chatResult)
-        let result = try awaitPublisher(openAI.chats(query: query))
+        let result = try awaitPublisher(client.chats(query: query))
         XCTAssertEqual(result, chatResult)
     }
     
@@ -58,7 +58,7 @@ final class OpenAITestsCombine: XCTestCase {
             .init(text: "What day of the week is it?", index: 0)
         ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
         try self.stub(result: editsResult)
-        let result = try awaitPublisher(openAI.edits(query: query))
+        let result = try awaitPublisher(client.edits(query: query))
         XCTAssertEqual(result, editsResult)
     }
     
@@ -71,7 +71,7 @@ final class OpenAITestsCombine: XCTestCase {
         ], model: "text-embedding-ada-002", usage: .init(promptTokens: 10, completionTokens: nil, totalTokens: 10))
         try self.stub(result: embeddingsResult)
         
-        let result = try awaitPublisher(openAI.embeddings(query: query))
+        let result = try awaitPublisher(client.embeddings(query: query))
         XCTAssertEqual(result, embeddingsResult)
     }
     
@@ -80,7 +80,7 @@ final class OpenAITestsCombine: XCTestCase {
         let modelResult = ModelResult(id: gpt3_5Turbo, object: "model", ownedBy: "organization-owner")
         try self.stub(result: modelResult)
         
-        let result = try awaitPublisher(openAI.model(query: query))
+        let result = try awaitPublisher(client.model(query: query))
         XCTAssertEqual(result, modelResult)
     }
     
@@ -88,7 +88,7 @@ final class OpenAITestsCombine: XCTestCase {
         let listModelsResult = ModelsResult(data: [], object: "model")
         try self.stub(result: listModelsResult)
         
-        let result = try awaitPublisher(openAI.models())
+        let result = try awaitPublisher(client.models())
         XCTAssertEqual(result, listModelsResult)
     }
     
@@ -101,7 +101,7 @@ final class OpenAITestsCombine: XCTestCase {
         ])
         try self.stub(result: moderationsResult)
         
-        let result = try awaitPublisher(openAI.moderations(query: query))
+        let result = try awaitPublisher(client.moderations(query: query))
         XCTAssertEqual(result, moderationsResult)
     }
     
@@ -111,7 +111,7 @@ final class OpenAITestsCombine: XCTestCase {
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
-        let result = try awaitPublisher(openAI.audioTranscriptions(query: query))
+        let result = try awaitPublisher(client.audioTranscriptions(query: query))
         XCTAssertEqual(result, transcriptionResult)
     }
     
@@ -121,7 +121,7 @@ final class OpenAITestsCombine: XCTestCase {
         let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
-        let result = try awaitPublisher(openAI.audioTranslations(query: query))
+        let result = try awaitPublisher(client.audioTranslations(query: query))
         XCTAssertEqual(result, transcriptionResult)
     }
 }

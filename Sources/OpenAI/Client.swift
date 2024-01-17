@@ -1,6 +1,6 @@
 import Foundation
 
-final public class OpenAI: OpenAIProtocol {
+public final class OpenAIClient: OpenAIProtocol {
 
     public struct Configuration {
         
@@ -100,7 +100,7 @@ final public class OpenAI: OpenAIProtocol {
     }
 }
 
-extension OpenAI {
+extension OpenAIClient {
 
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
@@ -176,9 +176,6 @@ extension OpenAI {
             completion?(error)
         }
     }
-}
-
-extension OpenAI {
     
     func buildURL(path: String) -> URL {
         configuration.host.appending(path: path)
