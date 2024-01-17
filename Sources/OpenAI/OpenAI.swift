@@ -11,12 +11,13 @@ final public class OpenAI: OpenAIProtocol {
         public let organizationIdentifier: String?
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
-        public let host: String
+        public let host: URL
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: URL = URL(string: "https://api.openai.com/v1")!,
+                    timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -29,8 +30,8 @@ final public class OpenAI: OpenAIProtocol {
     
     public let configuration: Configuration
 
-    public convenience init(apiToken: String) {
-        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
+    public convenience init(token: String) {
+        self.init(configuration: Configuration(token: token), session: URLSession.shared)
     }
     
     public convenience init(configuration: Configuration) {
@@ -180,10 +181,6 @@ extension OpenAI {
 extension OpenAI {
     
     func buildURL(path: String) -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = "/v1/\(path)"
-        return components.url!
+        configuration.host.appending(path: path)
     }
 }
