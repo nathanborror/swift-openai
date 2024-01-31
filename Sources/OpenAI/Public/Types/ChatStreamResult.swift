@@ -6,7 +6,7 @@ public struct ChatStreamResult: Codable, Equatable {
     public let created: TimeInterval
     public let model: String
     public let choices: [Choice]
-    public let systemFingerprint: String
+    public let systemFingerprint: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -41,7 +41,7 @@ public struct ChatStreamResult: Codable, Equatable {
         }
     }
     
-    init(id: String, object: String, created: TimeInterval, model: String, choices: [Choice], systemFingerprint: String) {
+    init(id: String, object: String, created: TimeInterval, model: String, choices: [Choice], systemFingerprint: String?) {
         self.id = id
         self.object = object
         self.created = created
