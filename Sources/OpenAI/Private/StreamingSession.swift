@@ -48,6 +48,9 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             return
         }
         jsonObjects.forEach { jsonContent  in
+            guard !jsonContent.isEmpty else {
+                return
+            }
             guard jsonContent != streamingCompletionMarker else {
                 return
             }
