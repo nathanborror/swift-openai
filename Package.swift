@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -13,9 +13,17 @@ let package = Package(
     ],
     products: [
         .library(name: "OpenAI", targets: ["OpenAI"]),
+        .executable(name: "OpenAICmd", targets: ["OpenAICmd"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", branch: "main"),
     ],
     targets: [
-        .target(name: "OpenAI", dependencies: []),
+        .target(name: "OpenAI"),
+        .executableTarget(name: "OpenAICmd", dependencies: [
+            "OpenAI",
+            .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        ]),
         .testTarget(name: "OpenAITests", dependencies: ["OpenAI"]),
     ]
 )
