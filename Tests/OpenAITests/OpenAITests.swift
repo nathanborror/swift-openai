@@ -321,7 +321,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testCustomURLBuilt() {
-        let configuration = OpenAIClient.Configuration(token: "foo", organizationIdentifier: "bar", host: URL(string: "http://my.host.com")!, timeoutInterval: 14)
+        let configuration = OpenAIClient.Configuration(token: "foo", organizationIdentifier: "bar", host: URL(string: "https://my.host.com/v1")!, timeoutInterval: 14)
         let openAI = OpenAIClient(configuration: configuration, session: self.urlSession)
         let completionsURL = openAI.buildURL(path: "completions")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/completions"))
