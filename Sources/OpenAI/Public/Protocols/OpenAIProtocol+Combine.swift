@@ -60,6 +60,27 @@ public extension OpenAIProtocol {
         return progress.eraseToAnyPublisher()
     }
     
+    func chatsVision(query: ChatVisionQuery) -> AnyPublisher<ChatResult, Error> {
+        Future<ChatResult, Error> {
+            chatsVision(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func chatsVisionStream(query: ChatVisionQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        chatsVisionStream(query: query) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
+    }
+    
     func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error> {
         Future<EditsResult, Error> {
             edits(query: query, completion: $0)

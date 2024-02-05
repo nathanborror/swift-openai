@@ -86,6 +86,16 @@ public extension OpenAIProtocol {
         }
     }
     
+    func chatsVisionStream(query: ChatVisionQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        return AsyncThrowingStream { continuation in
+            return chatsVisionStream(query: query)  { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
+            }
+        }
+    }
+    
     func edits(query: EditsQuery) async throws -> EditsResult {
         try await withCheckedThrowingContinuation { continuation in
             edits(query: query) { result in

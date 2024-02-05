@@ -75,6 +75,10 @@ public final class OpenAIClient: OpenAIProtocol {
         performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: "chat/completions")), completion: completion)
     }
     
+    public func chatsVisionStream(query: ChatVisionQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: "chat/completions")), onResult: onResult, completion: completion)
+    }
+    
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: "edits")), completion: completion)
     }
