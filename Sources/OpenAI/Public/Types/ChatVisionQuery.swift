@@ -14,12 +14,23 @@ public struct ChatVision: Codable, Equatable {
         public struct ImageURL: Codable, Equatable {
             public let url: String
             public let detail: String?
+            
+            public init(url: String, detail: String? = nil) {
+                self.url = url
+                self.detail = detail
+            }
         }
         
         enum CodingKeys: String, CodingKey {
             case type
             case text
             case imageURL = "image_url"
+        }
+        
+        public init(type: String, text: String? = nil, imageURL: ImageURL? = nil) {
+            self.type = type
+            self.text = text
+            self.imageURL = imageURL
         }
     }
     
