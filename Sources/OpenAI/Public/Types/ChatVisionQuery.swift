@@ -37,6 +37,37 @@ public struct ChatVision: Codable, Equatable {
 public enum ChatVisionMessage: Codable, Equatable {
     case vision(ChatVision)
     case text(Chat)
+    
+    private enum CodingKeys: String, CodingKey {
+        case role
+        case content
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let role = try container.decode(Chat.Role.self, forKey: .role)
+        if let content = try? container.decode([ChatVision.Content].self, forKey: .content) {
+            let chat = ChatVision(role: role, content: content)
+            self = .vision(chat)
+        } else if let content = try? container.decode(String.self, forKey: .content) {
+            let chat = Chat(role: role, content: content)
+            self = .text(chat)
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .content, in: container, debugDescription: "Unexpected content type")
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .vision(let chat):
+            try container.encode(chat.role, forKey: .role)
+            try container.encode(chat.content, forKey: .content)
+        case .text(let chat):
+            try container.encode(chat.role, forKey: .role)
+            try container.encode(chat.content, forKey: .content)
+        }
+    }
 }
 
 public struct ChatVisionQuery: Equatable, Codable, Streamable {
