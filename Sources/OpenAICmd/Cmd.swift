@@ -13,6 +13,7 @@ struct Cmd: AsyncParsableCommand {
             ChatStreamCompletion.self,
             ChatVisionCompletion.self,
             ChatVisionStreamCompletion.self,
+            AudioSpeechCompletion.self
         ]
     )
 }
@@ -116,3 +117,24 @@ struct ChatVisionStreamCompletion: AsyncParsableCommand {
         }
     }
 }
+
+struct AudioSpeechCompletion: AsyncParsableCommand {
+    static var configuration = CommandConfiguration(abstract: "Completes a speech request.")
+    
+    @OptionGroup var options: Options
+    
+    func run() async throws {
+        let client = OpenAIClient(token: options.token)
+        let query = AudioSpeechQuery(model: "tts-1-hd", input: options.prompt, voice: .alloy)
+        let data = try await client.audioSpeech(query: query)
+        let filename = "\(UUID().uuidString).mp3"
+        
+        if let url = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first?.appending(component: filename) {
+            try data.write(to: url)
+            try FileHandle.standardOutput.write(contentsOf: url.absoluteString.data(using: .utf8)!)
+        } else {
+            print("unable to create URL")
+        }
+    }
+}
+
