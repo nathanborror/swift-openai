@@ -95,8 +95,12 @@ public final class OpenAIClient: OpenAIProtocol {
         performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: "moderations")), completion: completion)
     }
     
-    public func audioSpeech(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingAudioRequest(request: JSONRequest<Data>(body: query, url: buildURL(path: "audio/speech")), onResult: onResult, completion: completion)
+    public func audioSpeech(query: AudioSpeechQuery, completion: @escaping (Result<Data, Error>) -> Void) {
+        performDataRequest(request: JSONRequest<AudioSpeechQuery>(body: query, url: buildURL(path: "audio/speech")), completion: completion)
+    }
+    
+    public func audioSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSteamingDataRequest(request: JSONRequest<AudioSpeechQuery>(body: query, url: buildURL(path: "audio/speech")), onResult: onResult, completion: completion)
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
@@ -167,10 +171,30 @@ extension OpenAIClient {
         }
     }
     
-    func performSteamingAudioRequest(request: any URLRequestBuildable, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    func performDataRequest(request: any URLRequestBuildable, completion: @escaping (Result<Data, Error>) -> Void) {
         do {
             let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingAudioSession(urlRequest: request)
+            let task = session.dataTask(with: request) { data, _, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                guard let data = data else {
+                    completion(.failure(OpenAIError.emptyData))
+                    return
+                }
+                completion(.success(data))
+            }
+            task.resume()
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    func performSteamingDataRequest(request: any URLRequestBuildable, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        do {
+            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+            let session = StreamingDataSession(urlRequest: request)
             session.onReceiveContent = {_, data in
                 onResult(.success(data))
             }

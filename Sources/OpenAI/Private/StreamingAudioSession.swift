@@ -3,15 +3,15 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingAudioSession: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
+final class StreamingDataSession: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
     
     enum StreamingError: Error {
         case unknownContent
         case emptyContent
     }
     
-    var onReceiveContent: ((StreamingAudioSession, Data) -> Void)?
-    var onComplete: ((StreamingAudioSession, Error?) -> Void)?
+    var onReceiveContent: ((StreamingDataSession, Data) -> Void)?
+    var onComplete: ((StreamingDataSession, Error?) -> Void)?
     
     private let urlRequest: URLRequest
     

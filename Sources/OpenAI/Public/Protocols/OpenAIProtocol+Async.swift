@@ -148,9 +148,22 @@ public extension OpenAIProtocol {
         }
     }
     
-    func audioSpeech(query: AudioSpeechQuery) -> AsyncThrowingStream<Data, Error> {
+    func audioSpeech(query: AudioSpeechQuery) async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            audioSpeech(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+    
+    func audioSpeechStream(query: AudioSpeechQuery) -> AsyncThrowingStream<Data, Error> {
         return AsyncThrowingStream { continuation in
-            return audioSpeech(query: query) { result in
+            return audioSpeechStream(query: query)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)

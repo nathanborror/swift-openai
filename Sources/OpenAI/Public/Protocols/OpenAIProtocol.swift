@@ -156,8 +156,8 @@ public protocol OpenAIProtocol {
     ///   - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModerationsResult, Error>`, will contain either the `ModerationsResult` object with the list of category results, or an error if the request failed.
     func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
     
-    /// This function converts text to speech and returns a chunked stream of audio data.
-    func audioSpeech(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?)
+    func audioSpeech(query: AudioSpeechQuery, completion: @escaping (Result<Data, Error>) -> Void)
+    func audioSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?)
     
     /// Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
     ///
