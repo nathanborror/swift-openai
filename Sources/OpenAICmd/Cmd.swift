@@ -6,7 +6,7 @@ import OpenAI
 struct Cmd: AsyncParsableCommand {
     
     static var configuration = CommandConfiguration(
-        abstract: "A utility for interacting with the Anthropic API.",
+        abstract: "A utility for interacting with the OpenAI API.",
         version: "0.0.1",
         subcommands: [
             ChatCompletion.self,
