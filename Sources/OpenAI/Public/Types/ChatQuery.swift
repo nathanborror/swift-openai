@@ -1,6 +1,7 @@
 /// https://platform.openai.com/docs/api-reference/chat
 
 import Foundation
+import SharedKit
 
 public struct Chat: Codable, Equatable {
     public let role: Role

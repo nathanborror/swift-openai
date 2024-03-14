@@ -16,10 +16,13 @@ let package = Package(
         .executable(name: "OpenAICmd", targets: ["OpenAICmd"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/nathanborror/swift-shared-kit", branch: "main"),
         .package(url: "https://github.com/apple/swift-argument-parser", branch: "main"),
     ],
     targets: [
-        .target(name: "OpenAI"),
+        .target(name: "OpenAI", dependencies: [
+            .product(name: "SharedKit", package: "swift-shared-kit"),
+        ]),
         .executableTarget(name: "OpenAICmd", dependencies: [
             "OpenAI",
             .product(name: "ArgumentParser", package: "swift-argument-parser"),

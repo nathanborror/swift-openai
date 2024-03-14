@@ -1,4 +1,5 @@
 import XCTest
+import SharedKit
 @testable import OpenAI
 
 class OpenAITestsDecoder: XCTestCase {
