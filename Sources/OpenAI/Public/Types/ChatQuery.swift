@@ -21,7 +21,6 @@ public struct Chat: Codable, Equatable {
         public let id: String?
         public let type: String?
         public let function: Function
-        public let index: Int?
         
         public struct Function: Codable, Equatable {
             public let name: String?
@@ -33,11 +32,10 @@ public struct Chat: Codable, Equatable {
             }
         }
         
-        public init(id: String?, type: String?, function: Function, index: Int?) {
+        public init(id: String?, type: String?, function: Function) {
             self.id = id
             self.type = type
             self.function = function
-            self.index = index
         }
     }
     
