@@ -107,6 +107,24 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case auto
         case tool(Tool)
         
+        public struct Tool: Codable, Equatable {
+            public var type: String
+            public var function: Function
+            
+            public struct Function: Codable, Equatable {
+                public var name: String
+                
+                public init(name: String) {
+                    self.name = name
+                }
+            }
+            
+            public init(type: String, function: Function) {
+                self.type = type
+                self.function = function
+            }
+        }
+        
         enum CodingKeys: String, CodingKey {
             case none
             case auto
