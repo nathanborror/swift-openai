@@ -3,6 +3,8 @@ import Foundation
 public final class OpenAIClient: OpenAIProtocol {
 
     public struct Configuration {
+        /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
+        public let host: URL
         
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
         public let token: String
@@ -10,17 +12,14 @@ public final class OpenAIClient: OpenAIProtocol {
         /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
         public let organizationIdentifier: String?
         
-        /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
-        public let host: URL
-        
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: URL = URL(string: "https://api.openai.com/v1")!,
+        public init(host: URL? = nil, token: String, organizationIdentifier: String? = nil,
                     timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
-            self.host = host
+            self.host = host ?? Defaults.apiHost
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -30,10 +29,6 @@ public final class OpenAIClient: OpenAIProtocol {
     
     public let configuration: Configuration
 
-    public convenience init(token: String) {
-        self.init(configuration: Configuration(token: token), session: URLSession.shared)
-    }
-    
     public convenience init(configuration: Configuration) {
         self.init(configuration: configuration, session: URLSession.shared)
     }

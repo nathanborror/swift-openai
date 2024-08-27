@@ -38,7 +38,7 @@ struct ChatCompletion: AsyncParsableCommand {
     @OptionGroup var options: Options
     
     func run() async throws {
-        let client = OpenAIClient(token: options.token)
+        let client = OpenAIClient(configuration: .init(token: options.token))
         let query = ChatQuery(model: options.model, messages: [.init(role: .user, content: options.prompt)])
         let message = try await client.chats(query: query)
         if let content = message.choices.first?.message.content, let data = content.data(using: .utf8) {
@@ -53,7 +53,7 @@ struct ChatStreamCompletion: AsyncParsableCommand {
     @OptionGroup var options: Options
     
     func run() async throws {
-        let client = OpenAIClient(token: options.token)
+        let client = OpenAIClient(configuration: .init(token: options.token))
         let query = ChatQuery(model: options.model, messages: [.init(role: .user, content: options.prompt)])
         let stream: AsyncThrowingStream<ChatStreamResult, Error> = client.chatsStream(query: query)
         for try await result in stream {
@@ -70,7 +70,7 @@ struct ChatVisionCompletion: AsyncParsableCommand {
     @OptionGroup var options: Options
     
     func run() async throws {
-        let client = OpenAIClient(token: options.token)
+        let client = OpenAIClient(configuration: .init(token: options.token))
         let query = ChatVisionQuery(
             model: options.model,
             messages: [
@@ -96,7 +96,7 @@ struct ChatVisionStreamCompletion: AsyncParsableCommand {
     @OptionGroup var options: Options
     
     func run() async throws {
-        let client = OpenAIClient(token: options.token)
+        let client = OpenAIClient(configuration: .init(token: options.token))
         let query = ChatVisionQuery(
             model: options.model,
             messages: [
@@ -124,7 +124,7 @@ struct AudioSpeechCompletion: AsyncParsableCommand {
     @OptionGroup var options: Options
     
     func run() async throws {
-        let client = OpenAIClient(token: options.token)
+        let client = OpenAIClient(configuration: .init(token: options.token))
         let query = AudioSpeechQuery(model: "tts-1-hd", input: options.prompt, voice: .alloy)
         let data = try await client.audioSpeech(query: query)
         let filename = "\(UUID().uuidString).mp3"
