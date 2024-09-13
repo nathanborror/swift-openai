@@ -42,19 +42,19 @@ public struct ModerationsResult: Codable, Equatable {
         
         public struct CategoryScores: Codable, Equatable {
             /// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
-            public let hate: Double
+            public let hate: Float
             /// Hateful content that also includes violence or serious harm towards the targeted group.
-            public let hateThreatening: Double
+            public let hateThreatening: Float
             /// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
-            public let selfHarm: Double
+            public let selfHarm: Float
             /// Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
-            public let sexual: Double
+            public let sexual: Float
             /// Sexual content that includes an individual who is under 18 years old.
-            public let sexualMinors: Double
+            public let sexualMinors: Float
             /// Content that promotes or glorifies violence or celebrates the suffering or humiliation of others.
-            public let violence: Double
+            public let violence: Float
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
-            public let violenceGraphic: Double
+            public let violenceGraphic: Float
             
             enum CodingKeys: String, CodingKey {
                 case hate

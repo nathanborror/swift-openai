@@ -5,7 +5,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     public let input: String
     public let voice: Voice
     public let responseFormat: ResponseFormat?
-    public let speed: Double?
+    public let speed: Float?
     
     public enum ResponseFormat: String, Codable {
         case mp3, opus, aac, flac
@@ -23,7 +23,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case speed
     }
     
-    public init(model: String, input: String, voice: Voice, responseFormat: ResponseFormat? = nil, speed: Double? = nil) {
+    public init(model: String, input: String, voice: Voice, responseFormat: ResponseFormat? = nil, speed: Float? = nil) {
         self.model = model
         self.input = input
         self.voice = voice

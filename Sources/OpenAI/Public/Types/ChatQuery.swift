@@ -61,15 +61,15 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public let messages: [Chat]
     public let tools: [Tool]?
     public let toolChoice: ToolChoice?
-    public let temperature: Double?
-    public let topP: Double?
+    public let temperature: Float?
+    public let topP: Float?
     public let n: Int?
     public let responseFormat: ResponseFormat?
     public let seed: Int?
     public let stop: [String]?
     public let maxTokens: Int?
-    public let presencePenalty: Double?
-    public let frequencyPenalty: Double?
+    public let presencePenalty: Float?
+    public let frequencyPenalty: Float?
     public let logitBias: [String:Int]?
     public let user: String?
     
@@ -163,7 +163,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case user
     }
     
-    public init(model: String, messages: [Chat], tools: [Tool]? = nil, toolChoice: ToolChoice? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, responseFormat: ResponseFormat? = nil, seed: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+    public init(model: String, messages: [Chat], tools: [Tool]? = nil, toolChoice: ToolChoice? = nil, temperature: Float? = nil, topP: Float? = nil, n: Int? = nil, responseFormat: ResponseFormat? = nil, seed: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.tools = tools
