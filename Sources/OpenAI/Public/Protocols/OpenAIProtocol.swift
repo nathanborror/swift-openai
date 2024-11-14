@@ -95,9 +95,6 @@ public protocol OpenAIProtocol {
     ///   - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
     func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
     
-    func chatsVision(query: ChatVisionQuery, completion: @escaping (Result<ChatResult, Error>) -> Void)
-    func chatsVisionStream(query: ChatVisionQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
-    
     /// This function sends an edits query to the OpenAI API and retrieves an edited version of the prompt based on the instruction given.
     ///
     /// Example:
