@@ -13,7 +13,6 @@ let package = Package(
     ],
     products: [
         .library(name: "OpenAI", targets: ["OpenAI"]),
-        .executable(name: "OpenAICmd", targets: ["OpenAICmd"]),
     ],
     dependencies: [
         .package(url: "https://github.com/nathanborror/swift-shared-kit", branch: "main"),
@@ -27,6 +26,5 @@ let package = Package(
             "OpenAI",
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
         ]),
-        .testTarget(name: "OpenAITests", dependencies: ["OpenAI"]),
     ]
 )
