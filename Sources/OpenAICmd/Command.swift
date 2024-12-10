@@ -46,18 +46,22 @@ struct ModelList: AsyncParsableCommand {
     func run() async throws {
         let client = Client(apiKey: global.key)
         let resp = try await client.models()
-        print(resp)
+        let out = resp.data.map { $0.id }.joined(separator: "\n")
+        print(out)
     }
 }
 
 struct ChatCompletion: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "complete",
+        commandName: "chat-completion",
         abstract: "Completes a chat request."
     )
 
     @OptionGroup
     var global: GlobalOptions
+
+    @Option(name: .long, help: "Stream chat output.")
+    var stream: Bool?
 
     func run() async throws {
         let client = Client(apiKey: global.key)
@@ -65,8 +69,11 @@ struct ChatCompletion: AsyncParsableCommand {
 
         write("\nUsing \(global.model)\n\n")
 
+        // System prompt
         if let system = global.system {
-            write("\n<system>\n\(system)\n</system>\n\n")
+            let message = ChatRequest.Message(text: system, role: .system)
+            messages.append(message)
+            write("\nSystem Prompt:\n\(system)\n\n")
         }
 
         while true {
@@ -79,17 +86,33 @@ struct ChatCompletion: AsyncParsableCommand {
                 break
             }
 
-            let message = ChatRequest.Message(content: [.init(type: "text", text: input)], role: .user)
+            // Input message
+            let message = ChatRequest.Message(text: input, role: .user)
             messages.append(message)
 
+            // Input request
             let req = ChatRequest(
                 messages: messages,
-                model: global.model
+                model: global.model,
+                stream: stream
             )
 
-            let resp = try await client.chatCompletions(req)
-            let content = resp.choices.first?.message.content ?? ""
-            write(content); newline()
+            // Handle response
+            if let stream, stream {
+                var text = ""
+                for try await resp in try client.chatCompletionsStream(req) {
+                    let delta = resp.choices.first?.delta.content ?? ""
+                    text += delta
+                    write(delta)
+                }
+                messages.append(.init(text: text, role: .assistant))
+                newline()
+            } else {
+                let resp = try await client.chatCompletions(req)
+                let text = resp.choices.first?.message.content ?? ""
+                messages.append(.init(text: text, role: .assistant))
+                write(text); newline()
+            }
         }
     }
 

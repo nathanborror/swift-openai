@@ -190,6 +190,17 @@ public struct ChatRequest: Codable, Equatable {
             self.tool_calls = tool_calls
             self.tool_call_id = tool_call_id
         }
+
+        public init(text: String? = nil, refusal: String? = nil, role: Role, name: String? = nil,
+                    audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil) {
+            self.content = (text != nil) ? [.init(type: "text", text: text)] : nil
+            self.refusal = refusal
+            self.role = role
+            self.name = name
+            self.audio = audio
+            self.tool_calls = tool_calls
+            self.tool_call_id = tool_call_id
+        }
     }
 
     public init(messages: [Message], model: String, store: Bool? = nil, frequency_penalty: Double? = nil,
@@ -286,7 +297,7 @@ public struct ChatStreamResponse: Codable, Equatable {
         public struct Delta: Codable, Equatable {
             public let content: String?
             public let tool_calls: [ChatResponse.Choice.Message.ToolCall]?
-            public let role: String
+            public let role: String?
             public let refusal: String?
         }
 
