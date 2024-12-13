@@ -43,7 +43,7 @@ public final class Client {
     struct ErrorResponse: Decodable {
         let error: Error
 
-        struct Error: Decodable, Swift.Error, CustomStringConvertible {
+        struct Error: Swift.Error, CustomStringConvertible, Decodable {
             let type: String
             let message: String
             let code: String?
