@@ -43,11 +43,15 @@ public final class Client {
     struct ErrorResponse: Decodable {
         let error: Error
 
-        struct Error: Decodable, Swift.Error {
+        struct Error: Decodable, Swift.Error, CustomStringConvertible {
             let type: String
             let message: String
             let code: String?
             let params: String?
+
+            public var description: String {
+                "(\(type)) — \(message)"
+            }
         }
     }
 }
