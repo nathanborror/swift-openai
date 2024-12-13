@@ -40,10 +40,10 @@ public final class Client {
         case get = "GET"
     }
 
-    private struct ErrorResponse: Decodable {
+    struct ErrorResponse: Decodable {
         let error: Error
 
-        struct Error: Decodable {
+        struct Error: Decodable, Swift.Error {
             let type: String
             let message: String
             let code: String?
