@@ -62,7 +62,10 @@ public struct ChatRequest: Codable, Equatable {
             public var parameters: JSONSchema?
             public var strict: Bool?
 
-            public init(name: String, description: String? = nil, parameters: JSONSchema? = nil, strict: Bool? = nil) {
+            public init(
+                name: String, description: String? = nil, parameters: JSONSchema? = nil,
+                strict: Bool? = nil
+            ) {
                 self.name = name
                 self.description = description
                 self.parameters = parameters
@@ -135,7 +138,10 @@ public struct ChatRequest: Codable, Equatable {
                 }
             }
 
-            public init(type: String, text: String? = nil, image_url: ImageURL? = nil, input_audio: InputAudio? = nil) {
+            public init(
+                type: String, text: String? = nil, image_url: ImageURL? = nil,
+                input_audio: InputAudio? = nil
+            ) {
                 self.type = type
                 self.text = text
                 self.image_url = image_url
@@ -180,8 +186,10 @@ public struct ChatRequest: Codable, Equatable {
             }
         }
 
-        public init(content: [Content]? = nil, refusal: String? = nil, role: Role, name: String? = nil,
-                    audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil) {
+        public init(
+            content: [Content]? = nil, refusal: String? = nil, role: Role, name: String? = nil,
+            audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil
+        ) {
             self.content = content
             self.refusal = refusal
             self.role = role
@@ -191,8 +199,10 @@ public struct ChatRequest: Codable, Equatable {
             self.tool_call_id = tool_call_id
         }
 
-        public init(text: String? = nil, refusal: String? = nil, role: Role, name: String? = nil,
-                    audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil) {
+        public init(
+            text: String? = nil, refusal: String? = nil, role: Role, name: String? = nil,
+            audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil
+        ) {
             self.content = (text != nil) ? [.init(type: "text", text: text)] : nil
             self.refusal = refusal
             self.role = role
@@ -203,13 +213,16 @@ public struct ChatRequest: Codable, Equatable {
         }
     }
 
-    public init(messages: [Message], model: String, store: Bool? = nil, frequency_penalty: Double? = nil,
-                max_completion_tokens: Int? = nil, n: Int? = nil, modalities: [String]? = nil, audio: Audio? = nil,
-                presence_penalty: Double? = nil, response_format: ResponseFormat? = nil, seed: Int? = nil,
-                service_tier: String? = nil, stop: [String]? = nil, stream: Bool? = nil,
-                stream_options: StreamOptions? = nil, temperature: Double? = nil, top_p: Double? = nil,
-                tools: [Tool]? = nil, tool_choice: ToolChoice? = nil, parallel_tool_calls: Bool? = nil,
-                user: String? = nil) {
+    public init(
+        messages: [Message], model: String, store: Bool? = nil, frequency_penalty: Double? = nil,
+        max_completion_tokens: Int? = nil, n: Int? = nil, modalities: [String]? = nil,
+        audio: Audio? = nil,
+        presence_penalty: Double? = nil, response_format: ResponseFormat? = nil, seed: Int? = nil,
+        service_tier: String? = nil, stop: [String]? = nil, stream: Bool? = nil,
+        stream_options: StreamOptions? = nil, temperature: Double? = nil, top_p: Double? = nil,
+        tools: [Tool]? = nil, tool_choice: ToolChoice? = nil, parallel_tool_calls: Bool? = nil,
+        user: String? = nil
+    ) {
         self.messages = messages
         self.model = model
         self.store = store
@@ -369,7 +382,22 @@ extension ChatRequest.Message {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(content, forKey: .content)
+
+        // Special handling for content
+        if let content = content {
+            // If there's exactly one content item of type "text", encode it as a string
+            if content.count == 1,
+                content[0].type == "text",
+                let text = content[0].text
+            {
+                try container.encode(text, forKey: .content)
+            } else {
+                // Otherwise encode the full array
+                try container.encode(content, forKey: .content)
+            }
+        }
+
+        //try container.encodeIfPresent(content, forKey: .content)
         try container.encodeIfPresent(refusal, forKey: .refusal)
         try container.encode(role, forKey: .role)
         try container.encodeIfPresent(audio, forKey: .audio)
