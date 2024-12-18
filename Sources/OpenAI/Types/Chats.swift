@@ -5,6 +5,7 @@ public struct ChatRequest: Codable, Equatable {
     public var messages: [Message]
     public var model: String
     public var store: Bool?
+    public var reasoning_effort: ReasoningEffort?
     // public var metadata
     public var frequency_penalty: Double?
     public var logit_bias: [String: Int]?
@@ -28,6 +29,12 @@ public struct ChatRequest: Codable, Equatable {
     public var tool_choice: ToolChoice?
     public var parallel_tool_calls: Bool?
     public var user: String?
+
+    public enum ReasoningEffort: String, CaseIterable, Codable {
+        case low
+        case medium
+        case high
+    }
 
     public struct Audio: Codable, Equatable {
         public var voice: String
@@ -62,10 +69,7 @@ public struct ChatRequest: Codable, Equatable {
             public var parameters: JSONSchema?
             public var strict: Bool?
 
-            public init(
-                name: String, description: String? = nil, parameters: JSONSchema? = nil,
-                strict: Bool? = nil
-            ) {
+            public init(name: String, description: String? = nil, parameters: JSONSchema? = nil, strict: Bool? = nil) {
                 self.name = name
                 self.description = description
                 self.parameters = parameters
@@ -138,10 +142,7 @@ public struct ChatRequest: Codable, Equatable {
                 }
             }
 
-            public init(
-                type: String, text: String? = nil, image_url: ImageURL? = nil,
-                input_audio: InputAudio? = nil
-            ) {
+            public init(type: String, text: String? = nil, image_url: ImageURL? = nil, input_audio: InputAudio? = nil) {
                 self.type = type
                 self.text = text
                 self.image_url = image_url
@@ -150,6 +151,7 @@ public struct ChatRequest: Codable, Equatable {
         }
 
         public enum Role: String, CaseIterable, Codable, Equatable {
+            case developer
             case system
             case assistant
             case user
@@ -186,10 +188,8 @@ public struct ChatRequest: Codable, Equatable {
             }
         }
 
-        public init(
-            content: [Content]? = nil, refusal: String? = nil, role: Role, name: String? = nil,
-            audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil
-        ) {
+        public init(content: [Content]? = nil, refusal: String? = nil, role: Role, name: String? = nil,
+                    audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil) {
             self.content = content
             self.refusal = refusal
             self.role = role
@@ -199,10 +199,8 @@ public struct ChatRequest: Codable, Equatable {
             self.tool_call_id = tool_call_id
         }
 
-        public init(
-            text: String? = nil, refusal: String? = nil, role: Role, name: String? = nil,
-            audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil
-        ) {
+        public init(text: String? = nil, refusal: String? = nil, role: Role, name: String? = nil,
+                    audio: Audio? = nil, tool_calls: [ToolCall]? = nil, tool_call_id: String? = nil) {
             self.content = (text != nil) ? [.init(type: "text", text: text)] : nil
             self.refusal = refusal
             self.role = role
@@ -213,19 +211,17 @@ public struct ChatRequest: Codable, Equatable {
         }
     }
 
-    public init(
-        messages: [Message], model: String, store: Bool? = nil, frequency_penalty: Double? = nil,
-        max_completion_tokens: Int? = nil, n: Int? = nil, modalities: [String]? = nil,
-        audio: Audio? = nil,
-        presence_penalty: Double? = nil, response_format: ResponseFormat? = nil, seed: Int? = nil,
-        service_tier: String? = nil, stop: [String]? = nil, stream: Bool? = nil,
-        stream_options: StreamOptions? = nil, temperature: Double? = nil, top_p: Double? = nil,
-        tools: [Tool]? = nil, tool_choice: ToolChoice? = nil, parallel_tool_calls: Bool? = nil,
-        user: String? = nil
-    ) {
+    public init(messages: [Message], model: String, store: Bool? = nil, reasoning_effort: ReasoningEffort? = nil,
+                frequency_penalty: Double? = nil, max_completion_tokens: Int? = nil, n: Int? = nil,
+                modalities: [String]? = nil, audio: Audio? = nil, presence_penalty: Double? = nil,
+                response_format: ResponseFormat? = nil, seed: Int? = nil, service_tier: String? = nil,
+                stop: [String]? = nil, stream: Bool? = nil, stream_options: StreamOptions? = nil,
+                temperature: Double? = nil, top_p: Double? = nil, tools: [Tool]? = nil, tool_choice: ToolChoice? = nil,
+                parallel_tool_calls: Bool? = nil, user: String? = nil) {
         self.messages = messages
         self.model = model
         self.store = store
+        self.reasoning_effort = reasoning_effort
         self.frequency_penalty = frequency_penalty
         self.max_completion_tokens = max_completion_tokens
         self.n = n
