@@ -1,210 +1,197 @@
 import Foundation
 
-public final class OpenAIClient: OpenAIProtocol {
+public final class Client {
 
-    public struct Configuration {
-        /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
-        public let host: URL
-        
-        /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
-        public let token: String
-        
-        /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
-        public let organizationIdentifier: String?
-        
-        /// Default request timeout
-        public let timeoutInterval: TimeInterval
-        
-        public init(host: URL? = nil, token: String, organizationIdentifier: String? = nil,
-                    timeoutInterval: TimeInterval = 60.0) {
-            self.token = token
-            self.organizationIdentifier = organizationIdentifier
-            self.host = host ?? Defaults.apiHost
-            self.timeoutInterval = timeoutInterval
+    public static let defaultHost = URL(string: "https://api.openai.com/v1")!
+
+    public let host: URL
+    public let apiKey: String
+
+    internal(set) public var session: URLSession
+
+    public init(session: URLSession = URLSession(configuration: .default), host: URL? = nil, apiKey: String) {
+        self.session = session
+        self.host = host ?? Self.defaultHost
+        self.apiKey = apiKey
+    }
+
+    public enum Error: Swift.Error, CustomStringConvertible {
+        case requestError(String)
+        case responseError(response: HTTPURLResponse, detail: String)
+        case decodingError(response: HTTPURLResponse, detail: String)
+        case unexpectedError(String)
+
+        public var description: String {
+            switch self {
+            case .requestError(let detail):
+                return "Request error: \(detail)"
+            case .responseError(let response, let detail):
+                return "Response error (Status \(response.statusCode)): \(detail)"
+            case .decodingError(let response, let detail):
+                return "Decoding error (Status \(response.statusCode)): \(detail)"
+            case .unexpectedError(let detail):
+                return "Unexpected error: \(detail)"
+            }
         }
     }
-    
-    private let session: URLSessionProtocol
-    private var streamingSessions: [NSObject] = []
-    
-    public let configuration: Configuration
 
-    public convenience init(configuration: Configuration) {
-        self.init(configuration: configuration, session: URLSession.shared)
+    private enum Method: String {
+        case post = "POST"
+        case get = "GET"
     }
 
-    init(configuration: Configuration, session: URLSessionProtocol) {
-        self.configuration = configuration
-        self.session = session
-    }
+    struct ErrorResponse: Decodable {
+        let error: Error
 
-    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
-        self.init(configuration: configuration, session: session as URLSessionProtocol)
-    }
-    
-    public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: "completions")), completion: completion)
-    }
-    
-    public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: "completions")), onResult: onResult, completion: completion)
-    }
-    
-    public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: "images/generations")), completion: completion)
-    }
-    
-    public func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: buildURL(path: "embeddings")), completion: completion)
-    }
-    
-    public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: "chat/completions")), completion: completion)
-    }
-    
-    public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: "chat/completions")), onResult: onResult, completion: completion)
-    }
-    
-    public func chatsVision(query: ChatVisionQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: "chat/completions")), completion: completion)
-    }
-    
-    public func chatsVisionStream(query: ChatVisionQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: "chat/completions")), onResult: onResult, completion: completion)
-    }
-    
-    public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: "edits")), completion: completion)
-    }
-    
-    public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: "models/\(query.model)"), method: "GET"), completion: completion)
-    }
-    
-    public func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: "models"), method: "GET"), completion: completion)
-    }
-    
-    public func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: "moderations")), completion: completion)
-    }
-    
-    public func audioSpeech(query: AudioSpeechQuery, completion: @escaping (Result<Data, Error>) -> Void) {
-        performDataRequest(request: JSONRequest<AudioSpeechQuery>(body: query, url: buildURL(path: "audio/speech")), completion: completion)
-    }
-    
-    public func audioSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingDataRequest(request: JSONRequest<AudioSpeechQuery>(body: query, url: buildURL(path: "audio/speech")), onResult: onResult, completion: completion)
-    }
-    
-    public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: "audio/transcriptions")), completion: completion)
-    }
-    
-    public func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: buildURL(path: "audio/translations")), completion: completion)
+        struct Error: Swift.Error, CustomStringConvertible, Decodable {
+            let type: String
+            let message: String
+            let code: String?
+            let params: String?
+
+            public var description: String {
+                "(\(type)) — \(message)"
+            }
+        }
     }
 }
 
-extension OpenAIClient {
+// MARK: - Models
 
-    func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
-        do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
-                }
+extension Client {
 
-                var apiError: Error? = nil
-                do {
-                    let decoded = try JSONDecoder().decode(ResultType.self, from: data)
-                    completion(.success(decoded))
-                } catch {
-                    apiError = error
-                }
-
-                if let apiError = apiError {
-                    do {
-                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
-                        completion(.failure(decoded))
-                    } catch {
-                        completion(.failure(apiError))
-                    }
-                }
-            }
-            task.resume()
-        } catch {
-            completion(.failure(error))
-        }
+    public func models() async throws -> ModelsResponse {
+        try await fetch(.get, "models")
     }
-    
-    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingSession<ResultType>(urlRequest: request)
+}
+
+// MARK: - Audio
+
+extension Client {
+
+    public func speech(_ request: SpeechRequest) async throws -> Data {
+        try await fetch(.post, "audio/speech", body: request)
+    }
+
+    public func transcriptions(_ request: TranscriptionRequest) async throws -> TranscriptionResponse {
+        try await fetch(.post, "audio/transcriptions", body: request)
+    }
+
+    public func translations(_ request: TranslationRequest) async throws -> TranslationResponse {
+        try await fetch(.post, "audio/translations", body: request)
+    }
+}
+
+// MARK: - Chats
+
+extension Client {
+
+    public func chatCompletions(_ request: ChatRequest) async throws -> ChatResponse {
+        guard request.stream == nil || request.stream == false else {
+            throw Error.requestError("ChatRequest.stream cannot be set to 'true'")
+        }
+        return try await fetch(.post, "chat/completions", body: request)
+    }
+
+    public func chatCompletionsStream(_ request: ChatRequest) throws -> AsyncThrowingStream<ChatStreamResponse, Swift.Error> {
+        guard request.stream == true else {
+            throw Error.requestError("ChatRequest.stream must be set to 'true'")
+        }
+        return try fetchAsync(.post, "chat/completions", body: request)
+    }
+}
+
+// MARK: - Embeddings
+
+extension Client {
+
+    public func embeddings(_ request: EmbeddingsRequest) async throws -> EmbeddingsResponse {
+        try await fetch(.post, "embeddings", body: request)
+    }
+}
+
+// MARK: - Images
+
+extension Client {
+
+    public func imagesGenerations(_ request: ImageRequest) async throws -> ImageResponse {
+        try await fetch(.post, "images/generations", body: request)
+    }
+
+    public func imagesEdits(_ request: ImageEditRequest) async throws -> ImageResponse {
+        try await fetch(.post, "images/edits", body: request)
+    }
+
+    public func imagesVariations(_ request: ImageEditRequest) async throws -> ImageResponse {
+        try await fetch(.post, "images/variations", body: request)
+    }
+}
+
+// MARK: - Private
+
+extension Client {
+
+    private func fetch<Response: Decodable>(_ method: Method, _ path: String, body: Encodable? = nil) async throws -> Response {
+        try checkAuthentication()
+        let request = try makeRequest(path: path, method: method, body: body)
+        let (data, resp) = try await session.data(for: request)
+        try checkResponse(resp, data)
+        return try decoder.decode(Response.self, from: data)
+    }
+
+    private func fetchAsync<Response: Codable>(_ method: Method, _ path: String, body: Encodable) throws -> AsyncThrowingStream<Response, Swift.Error> {
+        try checkAuthentication()
+        let request = try makeRequest(path: path, method: method, body: body)
+        return AsyncThrowingStream { continuation in
+            let session = StreamingSession<Response>(urlRequest: request)
             session.onReceiveContent = {_, object in
-                onResult(.success(object))
+                continuation.yield(object)
             }
             session.onProcessingError = {_, error in
-                onResult(.failure(error))
+                continuation.finish(throwing: error)
             }
-            session.onComplete = { [weak self] object, error in
-                self?.streamingSessions.removeAll(where: { $0 == object })
-                completion?(error)
-            }
-            session.perform()
-            streamingSessions.append(session)
-        } catch {
-            completion?(error)
-        }
-    }
-    
-    func performDataRequest(request: any URLRequestBuildable, completion: @escaping (Result<Data, Error>) -> Void) {
-        do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
-                }
-                completion(.success(data))
-            }
-            task.resume()
-        } catch {
-            completion(.failure(error))
-        }
-    }
-    
-    func performSteamingDataRequest(request: any URLRequestBuildable, onResult: @escaping (Result<Data, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingDataSession(urlRequest: request)
-            session.onReceiveContent = {_, data in
-                onResult(.success(data))
-            }
-            session.onComplete = { [weak self] object, error in
-                self?.streamingSessions.removeAll(where: { $0 == object })
-                completion?(error)
+            session.onComplete = { object, error in
+                continuation.finish(throwing: error)
             }
             session.perform()
-            streamingSessions.append(session)
-        } catch {
-            completion?(error)
         }
     }
-    
-    func buildURL(path: String) -> URL {
-        configuration.host.appending(path: path)
+
+    private func checkAuthentication() throws {
+        if apiKey.isEmpty {
+            throw Error.requestError("Missing API key")
+        }
+    }
+
+    private func checkResponse(_ resp: URLResponse?, _ data: Data) throws {
+        if let response = resp as? HTTPURLResponse, response.statusCode != 200 {
+            if let err = try? decoder.decode(ErrorResponse.self, from: data) {
+                throw Error.responseError(response: response, detail: err.error.message)
+            } else {
+                throw Error.responseError(response: response, detail: "Unknown response error")
+            }
+        }
+    }
+
+    private func makeRequest(path: String, method: Method, body: Encodable? = nil) throws -> URLRequest {
+        var req = URLRequest(url: host.appending(path: path))
+        req.httpMethod = method.rawValue
+        req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        if let body {
+            req.httpBody = try JSONEncoder().encode(body)
+        }
+        return req
+    }
+
+    private var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateInt = try container.decode(Int.self)
+            return Date(timeIntervalSince1970: TimeInterval(dateInt))
+        }
+        return decoder
     }
 }
