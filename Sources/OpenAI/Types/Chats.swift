@@ -1,5 +1,5 @@
 import Foundation
-import SharedKit
+import JSON
 
 public struct ChatRequest: Codable, Equatable {
     public var messages: [Message]

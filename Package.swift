@@ -15,12 +15,12 @@ let package = Package(
         .library(name: "OpenAI", targets: ["OpenAI"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/nathanborror/swift-shared-kit", branch: "main"),
+        .package(url: "https://github.com/nathanborror/swift-json", branch: "main"),
         .package(url: "https://github.com/apple/swift-argument-parser", branch: "main"),
     ],
     targets: [
         .target(name: "OpenAI", dependencies: [
-            .product(name: "SharedKit", package: "swift-shared-kit"),
+            .product(name: "JSON", package: "swift-json"),
         ]),
         .executableTarget(name: "OpenAICmd", dependencies: [
             "OpenAI",
