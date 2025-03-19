@@ -74,7 +74,7 @@ extension Client {
     }
 
     public func transcriptions(_ request: TranscriptionRequest) async throws -> TranscriptionResponse {
-        try await fetch(.post, "audio/transcriptions", body: request)
+        try await fetch(.post, "audio/transcriptions", body: request, isMultipart: true)
     }
 
     public func translations(_ request: TranslationRequest) async throws -> TranslationResponse {
@@ -131,17 +131,17 @@ extension Client {
 
 extension Client {
 
-    private func fetch<Response: Decodable>(_ method: Method, _ path: String, body: Encodable? = nil) async throws -> Response {
+    private func fetch<Response: Decodable>(_ method: Method, _ path: String, body: Encodable? = nil, isMultipart: Bool = false) async throws -> Response {
         try checkAuthentication()
-        let request = try makeRequest(path: path, method: method, body: body)
+        let request = try makeRequest(path: path, method: method, body: body, isMultipart: isMultipart)
         let (data, resp) = try await session.data(for: request)
         try checkResponse(resp, data)
         return try decoder.decode(Response.self, from: data)
     }
 
-    private func fetchAsync<Response: Codable>(_ method: Method, _ path: String, body: Encodable) throws -> AsyncThrowingStream<Response, Swift.Error> {
+    private func fetchAsync<Response: Codable>(_ method: Method, _ path: String, body: Encodable, isMultipart: Bool = false) throws -> AsyncThrowingStream<Response, Swift.Error> {
         try checkAuthentication()
-        let request = try makeRequest(path: path, method: method, body: body)
+        let request = try makeRequest(path: path, method: method, body: body, isMultipart: isMultipart)
         return AsyncThrowingStream { continuation in
             let session = StreamingSession<Response>(urlRequest: request)
             session.onReceiveContent = {_, object in
@@ -173,14 +173,52 @@ extension Client {
         }
     }
 
-    private func makeRequest(path: String, method: Method, body: Encodable? = nil) throws -> URLRequest {
+    private func makeRequest(path: String, method: Method, body: Encodable? = nil, isMultipart: Bool) throws -> URLRequest {
         var req = URLRequest(url: host.appending(path: path))
         req.httpMethod = method.rawValue
-        req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
 
+        if isMultipart {
+            req.setValue("multipart/form-data", forHTTPHeaderField: "Content-Type")
+        } else {
+            req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        }
+
         if let body {
-            req.httpBody = try JSONEncoder().encode(body)
+            if isMultipart {
+                let boundary = UUID().uuidString
+                req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+                var data = Data()
+
+                let mirror = Mirror(reflecting: body)
+                for child in mirror.children {
+                    guard let name = child.label else { continue }
+
+                    if let fileURL = child.value as? URL {
+                        let filename = fileURL.lastPathComponent
+                        let fileData = try Data(contentsOf: fileURL)
+
+                        data.append("--\(boundary)\r\n".data(using: .utf8)!)
+                        data.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+                        data.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
+                        data.append(fileData)
+                        data.append("\r\n".data(using: .utf8)!)
+                    } else {
+                        let value = String(describing: child.value)
+                        if value != "nil" {
+                            data.append("--\(boundary)\r\n".data(using: .utf8)!)
+                            data.append("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n".data(using: .utf8)!)
+                            data.append("\(value)\r\n".data(using: .utf8)!)
+                        }
+                    }
+                }
+
+                data.append("--\(boundary)--\r\n".data(using: .utf8)!)
+                req.httpBody = data
+            } else {
+                req.httpBody = try JSONEncoder().encode(body)
+            }
         }
         return req
     }

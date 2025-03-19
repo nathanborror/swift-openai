@@ -25,7 +25,7 @@ public struct SpeechRequest: Codable, Sendable {
 }
 
 public struct TranscriptionRequest: Codable, Sendable {
-    public var file: Data
+    public var file: URL
     public var model: String
     public var language: String?
     public var prompt: String?
@@ -37,7 +37,7 @@ public struct TranscriptionRequest: Codable, Sendable {
         case json, text, srt, verbose_json, vtt
     }
 
-    public init(file: Data, model: String, language: String? = nil, prompt: String? = nil,
+    public init(file: URL, model: String, language: String? = nil, prompt: String? = nil,
                 response_format: ResponseFormat? = nil, temperature: Double? = nil) {
         self.file = file
         self.model = model

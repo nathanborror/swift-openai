@@ -22,7 +22,7 @@ let package = Package(
         .target(name: "OpenAI", dependencies: [
             .product(name: "JSON", package: "swift-json"),
         ]),
-        .executableTarget(name: "OpenAICmd", dependencies: [
+        .executableTarget(name: "CLI", dependencies: [
             "OpenAI",
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
         ]),

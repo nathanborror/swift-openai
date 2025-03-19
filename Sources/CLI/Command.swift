@@ -11,6 +11,7 @@ struct Command: AsyncParsableCommand {
         subcommands: [
             ModelList.self,
             ChatCompletion.self,
+            Transcription.self,
         ],
         defaultSubcommand: ModelList.self
     )
@@ -21,7 +22,7 @@ struct GlobalOptions: ParsableCommand {
     var key: String
 
     @Option(name: .shortAndLong, help: "Model to use.")
-    var model = "gpt-4o"
+    var model: String
 
     @Option(name: .shortAndLong, help: "System prompt.")
     var systemPrompt: String?
@@ -123,6 +124,29 @@ struct ChatCompletion: AsyncParsableCommand {
 
     func newline() {
         write("\n")
+    }
+}
+
+struct Transcription: AsyncParsableCommand {
+    static var configuration = CommandConfiguration(
+        commandName: "transcription",
+        abstract: "Returns an audio transcription."
+    )
+
+    @OptionGroup
+    var global: GlobalOptions
+
+    @Argument(help: "Audio to transcribe.", completion: .file(), transform: URL.init(fileURLWithPath:))
+    var file: URL
+
+    func run() async throws {
+        let client = Client(apiKey: global.key)
+        let request = TranscriptionRequest(
+            file: file,
+            model: global.model
+        )
+        let resp = try await client.transcriptions(request)
+        print(resp)
     }
 }
 
