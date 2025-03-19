@@ -9,11 +9,10 @@ struct Command: AsyncParsableCommand {
         abstract: "A utility for interacting with the OpenAI API.",
         version: "0.0.1",
         subcommands: [
-            ModelList.self,
-            ChatCompletion.self,
-            Transcription.self,
-        ],
-        defaultSubcommand: ModelList.self
+            Models.self,
+            Chat.self,
+            Transcribe.self,
+        ]
     )
 }
 
@@ -34,7 +33,7 @@ struct GlobalOptions: ParsableCommand {
     }
 }
 
-struct ModelList: AsyncParsableCommand {
+struct Models: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "models",
         abstract: "Returns available models."
@@ -51,10 +50,10 @@ struct ModelList: AsyncParsableCommand {
     }
 }
 
-struct ChatCompletion: AsyncParsableCommand {
+struct Chat: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "chat-completion",
-        abstract: "Completes a chat request."
+        commandName: "chat",
+        abstract: "Returns a reponse to a chat prompt."
     )
 
     @OptionGroup
@@ -127,9 +126,9 @@ struct ChatCompletion: AsyncParsableCommand {
     }
 }
 
-struct Transcription: AsyncParsableCommand {
+struct Transcribe: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "transcription",
+        commandName: "transcribe",
         abstract: "Returns an audio transcription."
     )
 
