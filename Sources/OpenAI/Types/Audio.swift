@@ -4,6 +4,7 @@ public struct SpeechRequest: Codable, Sendable {
     public var model: String
     public var input: String
     public var voice: Voice
+    public var instructions: String?
     public var response_format: ResponseFormat?
     public var speed: Double?
 
@@ -15,10 +16,11 @@ public struct SpeechRequest: Codable, Sendable {
         case mp3, opus, aac, flac, wav, pcm
     }
 
-    public init(model: String, input: String, voice: Voice, response_format: ResponseFormat? = nil, speed: Double? = nil) {
+    public init(model: String, input: String, voice: Voice, instructions: String? = nil, response_format: ResponseFormat? = nil, speed: Double? = nil) {
         self.model = model
         self.input = input
         self.voice = voice
+        self.instructions = instructions
         self.response_format = response_format
         self.speed = speed
     }
@@ -27,9 +29,11 @@ public struct SpeechRequest: Codable, Sendable {
 public struct TranscriptionRequest: Codable, Sendable {
     public var file: URL
     public var model: String
+    public var include: [String]?
     public var language: String?
     public var prompt: String?
     public var response_format: ResponseFormat?
+    public var stream: Bool?
     public var temperature: Double?
     //public var timestamp_granularities[]: ?
 
@@ -37,10 +41,11 @@ public struct TranscriptionRequest: Codable, Sendable {
         case json, text, srt, verbose_json, vtt
     }
 
-    public init(file: URL, model: String, language: String? = nil, prompt: String? = nil,
+    public init(file: URL, model: String, include: [String]? = nil, language: String? = nil, prompt: String? = nil,
                 response_format: ResponseFormat? = nil, temperature: Double? = nil) {
         self.file = file
         self.model = model
+        self.include = include
         self.language = language
         self.prompt = prompt
         self.response_format = response_format
@@ -50,8 +55,9 @@ public struct TranscriptionRequest: Codable, Sendable {
 
 public struct TranscriptionResponse: Codable, Sendable {
     public let text: String
+    public let logprobs: [LogProb]
     public let language: String?
-    public let duration: String?
+    public let duration: Double?
     public let words: [Word]?
     public let segments: [Segment]?
 
@@ -72,6 +78,12 @@ public struct TranscriptionResponse: Codable, Sendable {
         public let avg_logprob: Double
         public let compression_ratio: Double
         public let no_speech_prob: Double
+    }
+
+    public struct LogProb: Codable, Sendable {
+        public let bytes: [UInt]
+        public let logprob: Double
+        public let token: String
     }
 }
 
