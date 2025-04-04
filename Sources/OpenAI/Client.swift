@@ -47,7 +47,7 @@ public final class Client {
             let type: String
             let message: String
             let code: String?
-            let params: String?
+            let param: String?
 
             public var description: String {
                 "(\(type)) — \(message)"
