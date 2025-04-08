@@ -145,10 +145,10 @@ extension Client {
         return AsyncThrowingStream { continuation in
             let session = StreamingSession<Response>(urlRequest: request)
             session.onReceiveContent = {_, object in
-                continuation.yield(object)
+                continuation.yield(with: .success(object))
             }
             session.onProcessingError = {_, error in
-                continuation.finish(throwing: error)
+                continuation.yield(with: .failure(error))
             }
             session.onComplete = { object, error in
                 continuation.finish(throwing: error)
