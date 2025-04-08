@@ -17,13 +17,13 @@ public struct EmbeddingsRequest: Codable, Equatable {
 }
 
 public struct EmbeddingsResponse: Decodable {
-    public let object: String
+    public let object: String?
     public let data: [Embedding]
     public let model: String
     public let usage: Usage?
 
     public struct Embedding: Decodable {
-        public let object: String
+        public let object: String?
         public let embedding: [Double]
         public let index: Int
     }

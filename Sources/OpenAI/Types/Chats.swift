@@ -245,7 +245,7 @@ public struct ChatRequest: Codable, Equatable {
 
 public struct ChatResponse: Codable, Equatable {
     public let id: String
-    public let object: String
+    public let object: String?
     public let created: TimeInterval
     public let model: String
     public let choices: [Choice]
@@ -294,7 +294,7 @@ public struct ChatStreamResponse: Codable, Equatable {
     public let model: String
     public let service_tier: String?
     public let system_fingerprint: String?
-    public let object: String
+    public let object: String?
     public let usage: Usage?
 
     public struct Choice: Codable, Equatable {
