@@ -3,9 +3,10 @@ import ArgumentParser
 import OpenAI
 
 @main
-struct Command: AsyncParsableCommand {
+struct CLI: AsyncParsableCommand {
 
     static var configuration = CommandConfiguration(
+        commandName: "openai",
         abstract: "A utility for interacting with the OpenAI API.",
         version: "0.0.1",
         subcommands: [
@@ -21,16 +22,7 @@ struct GlobalOptions: ParsableCommand {
     var key: String
 
     @Option(name: .shortAndLong, help: "Model to use.")
-    var model: String
-
-    @Option(name: .shortAndLong, help: "System prompt.")
-    var systemPrompt: String?
-
-    var system: String?
-
-    mutating func validate() throws {
-        system = try ValueReader(input: systemPrompt)?.value()
-    }
+    var model: String?
 }
 
 struct Models: AsyncParsableCommand {
@@ -63,17 +55,13 @@ struct Chat: AsyncParsableCommand {
     var stream: Bool?
 
     func run() async throws {
+        guard let model = global.model else {
+            fatalError("Missing model argument")
+        }
         let client = Client(apiKey: global.key)
         var messages: [ChatRequest.Message] = []
 
-        write("\nUsing \(global.model)\n\n")
-
-        // System prompt
-        if let system = global.system {
-            let message = ChatRequest.Message(text: system, role: .system)
-            messages.append(message)
-            write("\nSystem Prompt:\n\(system)\n\n")
-        }
+        write("\nUsing \(model)\n\n")
 
         while true {
             write("> ")
@@ -92,7 +80,7 @@ struct Chat: AsyncParsableCommand {
             // Input request
             let req = ChatRequest(
                 messages: messages,
-                model: global.model,
+                model: model,
                 stream: stream
             )
 
@@ -139,38 +127,15 @@ struct Transcribe: AsyncParsableCommand {
     var file: URL
 
     func run() async throws {
+        guard let model = global.model else {
+            fatalError("Missing model argument")
+        }
         let client = Client(apiKey: global.key)
         let request = TranscriptionRequest(
             file: file,
-            model: global.model
+            model: model
         )
         let resp = try await client.transcriptions(request)
         print(resp)
-    }
-}
-
-// Helpers
-
-enum ValueReader {
-    case direct(String)
-    case file(URL)
-
-    init?(input: String?) throws {
-        guard let input else { return nil }
-        if FileManager.default.fileExists(atPath: input) {
-            let url = URL(fileURLWithPath: input)
-            self = .file(url)
-        } else {
-            self = .direct(input)
-        }
-    }
-
-    func value() throws -> String {
-        switch self {
-        case .direct(let value):
-            return value
-        case .file(let url):
-            return try String(contentsOf: url, encoding: .utf8)
-        }
     }
 }
