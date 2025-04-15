@@ -266,7 +266,7 @@ public struct ChatResponse: Codable, Equatable {
             public let audio: Audio?
 
             public struct ToolCall: Codable, Equatable {
-                public let index: Int
+                public let index: Int?
                 public let id: String?
                 public let type: String?
                 public let function: Function
