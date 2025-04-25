@@ -55,7 +55,7 @@ public struct TranscriptionRequest: Codable, Sendable {
 
 public struct TranscriptionResponse: Codable, Sendable {
     public let text: String
-    public let logprobs: [LogProb]
+    public let logprobs: [LogProb]?
     public let language: String?
     public let duration: Double?
     public let words: [Word]?
