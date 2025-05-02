@@ -16,6 +16,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
 
     private let session: URLSession
     private let request: URLRequest
+    private let decoder: JSONDecoder
 
     private var streamingBuffer = ""
     private let streamingCompletionMarker = "[DONE]"
@@ -23,6 +24,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     init(session: URLSession, request: URLRequest) {
         self.session = session
         self.request = request
+        self.decoder = JSONDecoder()
     }
 
     func perform() {
@@ -58,7 +60,6 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
                 onProcessingError?(self, StreamingError.unknownContent)
                 return
             }
-            let decoder = JSONDecoder()
             do {
                 let object = try decoder.decode(ResultType.self, from: jsonData)
                 onReceiveContent?(self, object)
