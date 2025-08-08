@@ -64,6 +64,7 @@ public struct ChatRequest: Codable, Equatable {
     public struct Tool: Codable, Equatable {
         public var type: String
         public var function: Function?
+        public var custom: Custom?
 
         public struct Function: Codable, Equatable {
             public var name: String
@@ -79,9 +80,42 @@ public struct ChatRequest: Codable, Equatable {
             }
         }
 
-        public init(type: String, function: Function? = nil) {
+        public struct Custom: Codable, Equatable {
+            public var name: String
+            public var description: String?
+            public var format: Format?
+
+            public struct Format: Codable, Equatable {
+                public var type: String
+                public var grammar: Grammar?
+
+                public struct Grammar: Codable, Equatable {
+                    public var definition: String
+                    public var syntax: String
+
+                    public init(definition: String, syntax: String) {
+                        self.definition = definition
+                        self.syntax = syntax
+                    }
+                }
+
+                public init(type: String, grammar: Grammar? = nil) {
+                    self.type = type
+                    self.grammar = grammar
+                }
+            }
+
+            public init(name: String, description: String? = nil, format: Format? = nil) {
+                self.name = name
+                self.description = description
+                self.format = format
+            }
+        }
+
+        public init(type: String, function: Function? = nil, custom: Custom? = nil) {
             self.type = type
             self.function = function
+            self.custom = custom
         }
     }
 
