@@ -29,12 +29,14 @@ public struct ChatRequest: Codable, Equatable {
     public var tool_choice: ToolChoice?
     public var parallel_tool_calls: Bool?
     public var user: String?
+    public var verbosity: Verbosity?
 
     public enum ReasoningEffort: String, CaseIterable, Codable {
-        case minimal
-        case low
-        case medium
-        case high
+        case minimal, low, medium, high
+    }
+
+    public enum Verbosity: String, CaseIterable, Codable {
+        case low, medium, high
     }
 
     public struct Audio: Codable, Equatable {
@@ -48,8 +50,7 @@ public struct ChatRequest: Codable, Equatable {
     }
 
     public enum ResponseFormat: String, CaseIterable, Codable {
-        case text
-        case json_object
+        case text, json_object
     }
 
     public struct StreamOptions: Codable, Equatable {
@@ -218,7 +219,7 @@ public struct ChatRequest: Codable, Equatable {
                 response_format: ResponseFormat? = nil, seed: Int? = nil, service_tier: String? = nil,
                 stop: [String]? = nil, stream: Bool? = nil, stream_options: StreamOptions? = nil,
                 temperature: Double? = nil, top_p: Double? = nil, tools: [Tool]? = nil, tool_choice: ToolChoice? = nil,
-                parallel_tool_calls: Bool? = nil, user: String? = nil) {
+                parallel_tool_calls: Bool? = nil, user: String? = nil, verbosity: Verbosity? = nil) {
         self.messages = messages
         self.model = model
         self.store = store
@@ -241,6 +242,7 @@ public struct ChatRequest: Codable, Equatable {
         self.tool_choice = tool_choice
         self.parallel_tool_calls = parallel_tool_calls
         self.user = user
+        self.verbosity = verbosity
     }
 }
 
