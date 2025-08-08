@@ -205,7 +205,8 @@ public struct ChatRequest: Codable, Equatable {
         public struct ToolCall: Codable, Equatable {
             public var id: String?
             public var type: String?
-            public var function: Function
+            public var function: Function?
+            public var custom: Custom?
 
             public struct Function: Codable, Equatable {
                 public var name: String?
@@ -217,10 +218,21 @@ public struct ChatRequest: Codable, Equatable {
                 }
             }
 
-            public init(id: String? = nil, type: String? = nil, function: Function) {
+            public struct Custom: Codable, Equatable {
+                public var name: String?
+                public var input: String?
+
+                public init(name: String? = nil, input: String? = nil) {
+                    self.name = name
+                    self.input = input
+                }
+            }
+
+            public init(id: String? = nil, type: String? = nil, function: Function? = nil, custom: Custom? = nil) {
                 self.id = id
                 self.type = type
                 self.function = function
+                self.custom = custom
             }
         }
 
