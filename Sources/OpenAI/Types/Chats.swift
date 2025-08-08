@@ -126,19 +126,27 @@ public struct ChatRequest: Codable, Equatable {
 
         public struct Tool: Codable, Equatable {
             public var type: String
-            public var function: Function
+            public var function: Function?
+            public var custom: Custom?
 
             public struct Function: Codable, Equatable {
                 public var name: String
-
-                public init(name: String) {
-                    self.name = name
-                }
             }
 
-            public init(type: String, function: Function) {
-                self.type = type
-                self.function = function
+            public struct Custom: Codable, Equatable {
+                public var name: String
+            }
+
+            public init(function name: String) {
+                self.type = "function"
+                self.function = .init(name: name)
+                self.custom = nil
+            }
+
+            public init(custom name: String) {
+                self.type = "custom"
+                self.function = nil
+                self.custom = .init(name: name)
             }
         }
     }
