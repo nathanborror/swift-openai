@@ -31,6 +31,7 @@ public struct ChatRequest: Codable, Equatable {
     public var user: String?
 
     public enum ReasoningEffort: String, CaseIterable, Codable {
+        case minimal
         case low
         case medium
         case high
