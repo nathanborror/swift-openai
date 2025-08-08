@@ -306,11 +306,17 @@ public struct ChatResponse: Codable, Equatable {
                 public let index: Int?
                 public let id: String?
                 public let type: String?
-                public let function: Function
+                public let function: Function?
+                public let custom: Custom?
 
                 public struct Function: Codable, Equatable {
                     public let name: String?
                     public let arguments: String
+                }
+
+                public struct Custom: Codable, Equatable {
+                    public let name: String?
+                    public let input: String
                 }
             }
 
